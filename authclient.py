@@ -51,18 +51,21 @@ class AuthClient:
 
     def __prepend_header(self, msg):
         tmp = MessageBuf()
-        tmp.add_uint16(len(msg.buf))
+        tmp.add_uint16(len(msg.buf), be=True)
         tmp.add_bytes(msg.buf)
         return tmp
 
     def __send_msg(self, msg):
         msg = self.__prepend_header(msg)
+        print '>', str(msg)
         self.ws.sendall(msg.buf)
 
     def __recv_msg(self):
         header = MessageBuf(self.__recv_bytes(2))
-        data_len = header.get_uint16()
-        return MessageBuf(self.__recv_bytes(data_len))
+        data_len = header.get_uint16(be=True)
+        msg = MessageBuf(self.__recv_bytes(data_len))
+        print '<', str(msg)
+        return msg
 
     def __recv_bytes(self, l):
         res = ''

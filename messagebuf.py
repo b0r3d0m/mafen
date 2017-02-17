@@ -1,6 +1,38 @@
 import struct
 
 
+class Type:
+    T_END = 0
+    T_INT = 1
+    T_STR = 2
+    T_COORD = 3
+    T_UINT8 = 4
+    T_UINT16 = 5
+    T_COLOR = 6
+    T_TTOL = 8
+    T_INT8 = 9
+    T_INT16 = 10
+    T_NIL = 12
+    T_UID = 13
+    T_BYTES = 14
+    T_FLOAT32 = 15
+    T_FLOAT64 = 16
+
+
+class Coord:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class Color:
+    def __init__(self, r, g, b, a):
+        self.r = r
+        self.g = g
+        self.b = b
+        self.a = a
+
+
 class MessageBuf:
     def __init__(self, buf=bytearray()):
         self._buf = bytearray(buf)
@@ -9,6 +41,10 @@ class MessageBuf:
     @property
     def buf(self):
         return self._buf
+
+    # NOTE: Auth server uses BE, game server uses LE
+    def __end(self, be):
+        return '>' if be else '<'
 
     def add_string(self, s, enc='utf-8'):
         self._buf.extend(s.encode(enc))
@@ -23,24 +59,32 @@ class MessageBuf:
         self._buf.append(val)
         self.pos = len(self._buf)
 
-    def add_int16(self, val):
-        self._buf.extend(struct.pack('>h', val))
+    def add_int16(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'h', val))
         self.pos = len(self._buf)
 
-    def add_uint16(self, val):
-        self._buf.extend(struct.pack('>H', val))
+    def add_uint16(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'H', val))
         self.pos = len(self._buf)
 
-    def add_int32(self, val):
-        self._buf.extend(struct.pack('>i', val))
+    def add_int32(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'i', val))
         self.pos = len(self._buf)
 
-    def add_uint32(self, val):
-        self._buf.extend(struct.pack('>I', val))
+    def add_int64(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'q', val))
         self.pos = len(self._buf)
 
-    def add_float32(self, val):
-        self._buf.extend(struct.pack('>f', val))
+    def add_uint32(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'I', val))
+        self.pos = len(self._buf)
+
+    def add_float32(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'f', val))
+        self.pos = len(self._buf)
+
+    def add_float64(self, val, be=False):
+        self._buf.extend(struct.pack(self.__end(be) + 'd', val))
         self.pos = len(self._buf)
 
     # TODO: Add `enc` parameter
@@ -68,44 +112,109 @@ class MessageBuf:
         self.pos += 1
         return res
 
-    def get_int16(self):
+    def get_int16(self, be=False):
         res = struct.unpack(
-            '>h',
+            self.__end(be) + 'h',
             str(self._buf[self.pos:self.pos + 2])
         )[0]
         self.pos += 2
         return res
 
-    def get_uint16(self):
+    def get_uint16(self, be=False):
         res = struct.unpack(
-            '>H',
+            self.__end(be) + 'H',
             str(self._buf[self.pos:self.pos + 2])
         )[0]
         self.pos += 2
         return res
 
-    def get_int32(self):
+    def get_int32(self, be=False):
         res = struct.unpack(
-            '>i',
+            self.__end(be) + 'i',
             str(self._buf[self.pos:self.pos + 4])
         )[0]
         self.pos += 4
         return res
 
-    def get_uint32(self):
+    def get_uint32(self, be=False):
         res = struct.unpack(
-            '>I',
+            self.__end(be) + 'I',
             str(self._buf[self.pos:self.pos + 4])
         )[0]
         self.pos += 4
         return res
 
-    def get_float32(self):
+    def get_int64(self, be=False):
         res = struct.unpack(
-            '>f',
+            self.__end(be) + 'q',
+            str(self._buf[self.pos:self.pos + 8])
+        )[0]
+        self.pos += 8
+        return res
+
+    def get_float32(self, be=False):
+        res = struct.unpack(
+            self.__end(be) + 'f',
             str(self._buf[self.pos:self.pos + 4])
         )[0]
         self.pos += 4
+        return res
+
+    def get_float64(self, be=False):
+        res = struct.unpack(
+            self.__end(be) + 'd',
+            str(self._buf[self.pos:self.pos + 8])
+        )[0]
+        self.pos += 8
+        return res
+
+    def get_list(self):
+        res = []
+        while True:
+            if self.eom():
+                break
+            t = self.get_uint8()
+            if t == Type.T_END:
+                break
+            elif t == Type.T_INT:
+                res.append(self.get_int32())
+            elif t == Type.T_STR:
+                res.append(self.get_string())
+            elif t == Type.T_COORD:
+                x = self.get_int32()
+                y = self.get_int32()
+                res.append(Coord(x, y))
+            elif t == Type.T_UINT8:
+                res.append(self.get_uint8())
+            elif t == Type.T_UINT16:
+                res.append(self.get_uint16())
+            elif t == Type.T_INT8:
+                res.append(self.get_uint8())  # TODO
+            elif t == Type.T_INT16:
+                res.append(self.get_int16())
+            elif t == Type.T_COLOR:
+                r = self.get_uint8()
+                g = self.get_uint8()
+                b = self.get_uint8()
+                a = self.get_uint8()
+                res.append(Color(r, g, b, a))
+            elif t == Type.T_TTOL:
+                res.append(self.get_list())
+            elif t == Type.T_NIL:
+                res.append(0)
+            elif t == Type.T_UID:
+                res.append(self.get_int64())
+            elif t == Type.T_BYTES:
+                l = self.get_uint8()
+                if (l & 128) != 0:
+                    l = self.get_int32()
+                res.append(self.get_bytes(l))
+            elif t == Type.T_FLOAT32:
+                res.append(self.get_float32())
+            elif t == Type.T_FLOAT64:
+                res.append(self.get_float64())
+            else:
+                pass  # TODO
         return res
 
     def eom(self):

@@ -12,3 +12,6 @@ class Config:
     self.auth_host = config.get('auth', 'host')
     self.auth_port = int(config.get('auth', 'port'))
     self.cert_path = config.get('auth', 'cert_path')
+
+    self.game_host = config.get('game', 'host')
+    self.game_port = int(config.get('game', 'port'))
