@@ -6,7 +6,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 from authclient import AuthClient, AuthException
 from config import Config
-from gameclient import GameClient, GameException, MessageType, RelMessageType, GameState
+from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
 from messagebuf import MessageBuf
 
 
@@ -163,6 +163,8 @@ class WSServer(WebSocket):
                     self.on_msg_rel(data)
                 elif msg_type == MessageType.MSG_ACK:
                     self.on_msg_ack(data)
+                elif msg_type == MessageType.MSG_OBJDATA:
+                    self.on_msg_objdata(data)
                 elif msg_type == MessageType.MSG_CLOSE:
                     self.on_msg_close()
 
@@ -246,6 +248,164 @@ class WSServer(WebSocket):
         ack = msg.get_uint16()
         with self.rmsgs_lock:
             rmsgs = [rmsg for rmsg in self.rmsgs if rmsg.seq > ack]
+
+    def on_msg_objdata(self, msg):
+        # NOTE: We don't really need to handle these messages,
+        # we just want to get rid of them by sending the corresponding MSG_OBJACK messages
+        while not msg.eom():
+            fl = msg.get_uint8()
+            id = msg.get_uint32()
+            frame = msg.get_int32()
+
+            while True:
+                data_type = msg.get_uint8()
+                if data_type == ObjDataType.OD_REM:
+                    pass
+                elif data_type == ObjDataType.OD_MOVE:
+                    msg.get_int32()
+                    msg.get_int32()
+                    ia = msg.get_uint16()
+                elif data_type == ObjDataType.OD_RES:
+                    resid = msg.get_uint16()
+                    if (resid & 0x8000) != 0:
+                        resid &= ~0x8000
+                        sdt_len = msg.get_uint8()
+                        sdt = MessageBuf(msg.get_bytes(sdt_len))
+                elif data_type == ObjDataType.OD_LINBEG:
+                    msg.get_int32()
+                    msg.get_int32()
+
+                    msg.get_int32()
+                    msg.get_int32()
+                elif data_type == ObjDataType.OD_LINSTEP:
+                    w = msg.get_int32()
+                    if w == -1:
+                        pass
+                    elif (w & 0x80000000) == 0:
+                        pass
+                    else:
+                        w = msg.get_int32()
+                elif data_type == ObjDataType.OD_SPEECH:
+                    zo = msg.get_int16() / 100.0
+                    text = msg.get_string()
+                elif data_type == ObjDataType.OD_COMPOSE:
+                    resid = msg.get_uint16()
+                elif data_type == ObjDataType.OD_CMPPOSE:
+                    pfl = msg.get_uint8()
+                    seq = msg.get_uint8()
+
+                    if (pfl & 2) != 0:
+                        while True:
+                            resid = msg.get_uint16()
+                            if resid == 65535:
+                                break
+                            if (resid & 0x8000) != 0:
+                                resid &= ~0x8000
+                                sdt_len = msg.get_uint8()
+                                sdt = MessageBuf(msg.get_bytes(sdt_len))
+
+                    if (pfl & 4) != 0:
+                        while True:
+                            resid = msg.get_uint16()
+                            if resid == 65535:
+                                break
+                            if (resid & 0x8000) != 0:
+                                resid &= ~0x8000
+                                sdt_len = msg.get_uint8()
+                                sdt = MessageBuf(msg.get_bytes(sdt_len))
+                        ttime = msg.get_uint8() / 10.0
+                elif data_type == ObjDataType.OD_CMPMOD:
+                    while True:
+                        modid = msg.get_uint16()
+                        if modid == 65535:
+                            break
+                        while True:
+                            resid = msg.get_uint16()
+                            if resid == 65535:
+                                break
+                            if (resid & 0x8000) != 0:
+                                resid &= ~0x8000
+                                sdt_len = msg.get_uint8()
+                                sdt = MessageBuf(msg.get_bytes(sdt_len))
+                elif data_type == ObjDataType.OD_CMPEQU:
+                    while True:
+                        h = msg.get_uint8()
+                        if h == 255:
+                            break
+                        ef = h & 0x80
+                        et = h & 0x7f
+                        at = msg.get_string()
+                        resid = msg.get_uint16()
+                        if (resid & 0x8000) != 0:
+                            resid &= ~0x8000
+                            sdt_len = msg.get_uint8()
+                            sdt = MessageBuf(msg.get_bytes(sdt_len))
+                        if (ef & 128) != 0:
+                            x = msg.get_int16()
+                            y = msg.get_int16()
+                            z = msg.get_int16()
+                elif data_type == ObjDataType.OD_ZOFF:
+                    off = msg.get_int16() / 100.0
+                elif data_type == ObjDataType.OD_LUMIN:
+                    msg.get_int32()
+                    msg.get_int32()
+
+                    sz = msg.get_uint16()
+                    sstr = msg.get_uint8()
+                elif data_type == ObjDataType.OD_AVATAR:
+                    while True:
+                        layer = msg.get_uint16()
+                        if layer == 65535:
+                            break
+                elif data_type == ObjDataType.OD_FOLLOW:
+                    oid = msg.get_uint32()
+                    if oid != 0xffffffffl:
+                        xfres = msg.get_uint16()  # getres
+                        xfname = msg.get_string()
+                elif data_type == ObjDataType.OD_HOMING:
+                    oid = msg.get_uint32()
+                    if oid != 0xffffffffl:
+                        pass
+                    else:
+                        msg.get_int32()
+                        msg.get_int32()
+
+                        msg.get_int32()  # double v = msg.int32() * 0x1p-10 * 11;
+                elif data_type == ObjDataType.OD_OVERLAY:
+                    oid = msg.get_int32()
+                    resid = msg.get_uint16()
+                    if resid == 65535:
+                        pass
+                    else:
+                        if (resid & 0x8000) != 0:
+                            resid &= ~0x8000
+                            sdt_len = msg.get_uint8()
+                            sdt = MessageBuf(msg.get_bytes(sdt_len))
+                elif data_type == ObjDataType.OD_HEALTH:
+                    hp = msg.get_uint8()
+                elif data_type == ObjDataType.OD_BUDDY:
+                    name = msg.get_string()
+                    if len(name) > 0:
+                        group = msg.get_uint8()
+                        btype = msg.get_uint8()
+                elif data_type == ObjDataType.OD_ICON:
+                    resid = msg.get_uint16()
+                    if resid == 65535:
+                        pass
+                    else:
+                        ifl = msg.get_uint8()
+                elif data_type == ObjDataType.OD_RESATTR:
+                    resid = msg.get_uint16()
+                    dat_len = msg.get_uint8()
+                    if dat_len > 0:
+                        dat = MessageBuf(msg.get_bytes(dat_len))
+                elif data_type == ObjDataType.OD_END:
+                    break
+
+            msg = MessageBuf()
+            msg.add_uint8(MessageType.MSG_OBJACK)
+            msg.add_uint32(id)
+            msg.add_int32(frame)
 
     def on_msg_close(self):
         self.set_gs(GameState.CLOSE)

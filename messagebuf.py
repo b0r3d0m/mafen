@@ -252,6 +252,9 @@ class MessageBuf:
                 pass  # TODO
         return res
 
+    def skip(self, count):
+        self.pos += count
+
     def eom(self):
         return self.pos >= len(self._buf)
 

@@ -8,12 +8,39 @@ class MessageType:
     MSG_REL = 1
     MSG_ACK = 2
     MSG_BEAT = 3
+    MSG_OBJDATA = 6
+    MSG_OBJACK = 7
     MSG_CLOSE = 8
 
 
 class RelMessageType:
     RMSG_NEWWDG = 0
     RMSG_WDGMSG = 1
+
+
+class ObjDataType:
+    OD_REM = 0
+    OD_MOVE = 1
+    OD_RES = 2
+    OD_LINBEG = 3
+    OD_LINSTEP = 4
+    OD_SPEECH = 5
+    OD_COMPOSE = 6
+    OD_ZOFF = 7
+    OD_LUMIN = 8
+    OD_AVATAR = 9
+    OD_FOLLOW = 10
+    OD_HOMING = 11
+    OD_OVERLAY = 12
+    OD_AUTH = 13
+    OD_HEALTH = 14
+    OD_BUDDY = 15
+    OD_CMPPOSE = 16
+    OD_CMPMOD = 17
+    OD_CMPEQU = 18
+    OD_ICON = 19
+    OD_RESATTR = 20
+    OD_END = 255
 
 
 class GameState:
