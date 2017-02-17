@@ -87,6 +87,41 @@ class MessageBuf:
         self._buf.extend(struct.pack(self.__end(be) + 'd', val))
         self.pos = len(self._buf)
 
+    def add_list(self, l, be=False):
+        for e in l:
+            t = type(e)
+            if e == 0:
+                self.add_uint8(0)
+            elif t is int:
+                self.add_uint8(Type.T_INT)
+                self.add_int32(e, be)
+            elif t is str or t is unicode:
+                self.add_uint8(Type.T_STR)
+                self.add_string(e)
+            elif t is Coord:
+                self.add_uint8(Type.T_COORD)
+                self.add_int32(e.x, be)
+                self.add_int32(e.y, be)
+            elif t is bytearray:
+                self.add_uint8(Type.T_BYTES)
+                if len(e) < 128:
+                    self.add_uint8(len(e))
+                else:
+                    self.add_uint8(0x80)
+                    self.add_int32(len(e), be)
+                self.add_bytes(e)
+            elif t is Color:
+                self.add_uint8(Type.T_COLOR)
+                self.add_uint8(e.r)
+                self.add_uint8(e.g)
+                self.add_uint8(e.b)
+                self.add_uint8(e.a)
+            elif t is float:
+                self.add_uint8(Type.T_FLOAT32)
+                self.add_float32(e, be)
+            else:
+                pass  # TODO: Add `double` support
+
     # TODO: Add `enc` parameter
     def get_string(self):
         s = ''
@@ -168,7 +203,7 @@ class MessageBuf:
         self.pos += 8
         return res
 
-    def get_list(self):
+    def get_list(self, be=False):
         res = []
         while True:
             if self.eom():
@@ -177,21 +212,21 @@ class MessageBuf:
             if t == Type.T_END:
                 break
             elif t == Type.T_INT:
-                res.append(self.get_int32())
+                res.append(self.get_int32(be))
             elif t == Type.T_STR:
                 res.append(self.get_string())
             elif t == Type.T_COORD:
-                x = self.get_int32()
-                y = self.get_int32()
+                x = self.get_int32(be)
+                y = self.get_int32(be)
                 res.append(Coord(x, y))
             elif t == Type.T_UINT8:
                 res.append(self.get_uint8())
             elif t == Type.T_UINT16:
-                res.append(self.get_uint16())
+                res.append(self.get_uint16(be))
             elif t == Type.T_INT8:
                 res.append(self.get_uint8())  # TODO
             elif t == Type.T_INT16:
-                res.append(self.get_int16())
+                res.append(self.get_int16(be))
             elif t == Type.T_COLOR:
                 r = self.get_uint8()
                 g = self.get_uint8()
@@ -199,20 +234,20 @@ class MessageBuf:
                 a = self.get_uint8()
                 res.append(Color(r, g, b, a))
             elif t == Type.T_TTOL:
-                res.append(self.get_list())
+                res.append(self.get_list(be))
             elif t == Type.T_NIL:
                 res.append(0)
             elif t == Type.T_UID:
-                res.append(self.get_int64())
+                res.append(self.get_int64(be))
             elif t == Type.T_BYTES:
                 l = self.get_uint8()
                 if (l & 128) != 0:
-                    l = self.get_int32()
+                    l = self.get_int32(be)
                 res.append(self.get_bytes(l))
             elif t == Type.T_FLOAT32:
-                res.append(self.get_float32())
+                res.append(self.get_float32(be))
             elif t == Type.T_FLOAT64:
-                res.append(self.get_float64())
+                res.append(self.get_float64(be))
             else:
                 pass  # TODO
         return res

@@ -1,11 +1,12 @@
 import json
 import threading
+import time
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 from authclient import AuthClient, AuthException
 from config import Config
-from gameclient import GameClient, GameException, MessageType, RelMessageType
+from gameclient import GameClient, GameException, MessageType, RelMessageType, GameState
 from messagebuf import MessageBuf
 
 
@@ -28,14 +29,19 @@ class WSServer(WebSocket):
         data = msg['data']
         if action == 'connect':
             self.handle_connect_message(data)
+        elif action == 'play':
+            self.handle_play_message(data)
         else:
             print('Unknown message received: ' + action)
 
     def handleConnected(self):
         print self.address, 'connected'
+        self.gs_lock = threading.Lock()
+        self.set_gs(GameState.CONN)
 
     def handleClose(self):
         print self.address, 'closed'
+        self.set_gs(GameState.CLOSE)
 
     def handle_connect_message(self, data):
         self.username = data['username']
@@ -55,9 +61,22 @@ class WSServer(WebSocket):
                     'success': True
                 }))
             )
-            self.game_session_th = threading.Thread(target=self.game_loop)
-            self.game_session_th.daemon = True
-            self.game_session_th.start()
+
+            self.charlist_wdg_id = -1
+            self.rseq = 0
+            self.wseq = 0
+            self.rmsgs = []
+            self.rmsgs_lock = threading.Lock()
+
+            self.gc = GameClient(WSServer.config.game_host, WSServer.config.game_port)
+
+            self.rworker_th = threading.Thread(target=self.rworker)
+            self.rworker_th.daemon = True
+            self.rworker_th.start()
+
+            self.sworker_th = threading.Thread(target=self.sworker)
+            self.sworker_th.daemon = True
+            self.sworker_th.start()
         except AuthException as e:
             self.sendMessage(
                 unicode(json.dumps({
@@ -67,33 +86,103 @@ class WSServer(WebSocket):
                 }))
             )
 
-    def game_loop(self):
-        self.charlist_wdg_id = -1
-        self.rseq = 0
+    def set_gs(self, gs):
+        with self.gs_lock:
+            self.gs = gs
 
-        self.gc = GameClient(WSServer.config.game_host, WSServer.config.game_port)
-        self.gc.start_session(self.username, self.cookie)
+    def get_gs(self):
+        with self.gs_lock:
+            return self.gs
+
+    def handle_play_message(self, data):
+        if self.charlist_wdg_id == -1:
+            return
+
+        char_name = data['char_name']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.charlist_wdg_id)
+        msg.add_string('play')
+        msg.add_list([char_name])
+        self.queue_rmsg(msg)
+
+    def queue_rmsg(self, rmsg):
+        msg = MessageBuf()
+        msg.add_uint8(MessageType.MSG_REL)
+        msg.add_uint16(self.wseq)
+        msg.add_bytes(rmsg.buf)
+
+        msg.seq = self.wseq
+        with self.rmsgs_lock:
+            self.rmsgs.append(msg)
+        self.wseq += 1
+
+    def sworker(self):
+        last = 0
+        conn_retries = 0
+        while True:
+            now = int(time.time())
+            gs = self.get_gs()
+            if gs == GameState.CONN:
+                if now - last > 2:
+                    if conn_retries > 5:
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'close',
+                                'reason': 'Unable to initiate the game session'
+                            }))
+                        )
+                        self.set_gs(GameState.CLOSE)
+                        return
+                    self.gc.start_session(self.username, self.cookie)
+                    last = now
+                    conn_retries += 1
+                time.sleep(0.1)
+            elif gs == GameState.PLAY:
+                with self.rmsgs_lock:
+                    for rmsg in self.rmsgs:
+                        self.gc.send_msg(rmsg)
+                        last = now
+                if now - last > 5:
+                    self.gc.beat()
+                    last = now
+                time.sleep(0.3)
+            elif gs == GameState.CLOSE:
+                return
+
+    def rworker(self):
         while True:
             try:
-                msg = self.gc.recv_msg()
+                msg = self.gc.recv_msg()  # TODO: Make it non-blocking to check the game state
                 msg_type = msg.get_uint8()
+                data = MessageBuf(msg.get_remaining())
                 if msg_type == MessageType.MSG_SESS:
-                    self.on_msg_sess(MessageBuf(msg.get_remaining()))
+                    self.on_msg_sess(data)
                 elif msg_type == MessageType.MSG_REL:
-                    self.on_msg_rel(MessageBuf(msg.get_remaining()))
+                    self.on_msg_rel(data)
+                elif msg_type == MessageType.MSG_ACK:
+                    self.on_msg_ack(data)
+                elif msg_type == MessageType.MSG_CLOSE:
+                    self.on_msg_close()
+
+                if self.get_gs() == GameState.CLOSE:
+                    return
             except GameException as e:
                 print('Error: ' + str(e))
 
     def on_msg_sess(self, msg):
         err = msg.get_uint8()
-        if err != 0:
+        if err == 0:
+            self.set_gs(GameState.PLAY)
+        else:
             self.sendMessage(
                 unicode(json.dumps({
                     'action': 'close',
                     'reason': 'Unable to initiate the game session'
                 }))
             )
-            # TODO: Interrupt
+            self.set_gs(GameState.CLOSE)
 
     def on_msg_rel(self, msg):
         seq = msg.get_uint16()
@@ -152,3 +241,11 @@ class WSServer(WebSocket):
             pass
         else:
             pass
+
+    def on_msg_ack(self, msg):
+        ack = msg.get_uint16()
+        with self.rmsgs_lock:
+            rmsgs = [rmsg for rmsg in self.rmsgs if rmsg.seq > ack]
+
+    def on_msg_close(self):
+        self.set_gs(GameState.CLOSE)
