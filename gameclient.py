@@ -1,6 +1,7 @@
 import socket
 
 from messagebuf import MessageBuf
+from simplelogger import SimpleLogger
 
 
 class MessageType:
@@ -53,8 +54,9 @@ class GameException(Exception):
     pass
 
 
-class GameClient:
+class GameClient(SimpleLogger):
     def __init__(self, host, port):
+        SimpleLogger.__init__(self)
         try:
             self.host = host
             self.port = port
@@ -77,7 +79,7 @@ class GameClient:
     def recv_msg(self):
         data, addr = self.s.recvfrom(65535)
         msg = MessageBuf(data)
-        print '<', str(msg)
+        self.info('< ' + str(msg))
         return msg
 
     def ack(self, seq):
@@ -92,5 +94,5 @@ class GameClient:
         self.send_msg(msg)
 
     def send_msg(self, msg):
-        print '>', str(msg)
+        self.info('> ' + str(msg))
         self.s.sendto(msg.buf, (self.host, self.port))

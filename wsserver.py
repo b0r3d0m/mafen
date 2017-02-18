@@ -8,9 +8,10 @@ from authclient import AuthClient, AuthException
 from config import Config
 from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
 from messagebuf import MessageBuf
+from simplelogger import SimpleLogger
 
 
-class WSServer(WebSocket):
+class WSServer(WebSocket, SimpleLogger):
     config = Config()
 
     @staticmethod
@@ -32,15 +33,16 @@ class WSServer(WebSocket):
         elif action == 'play':
             self.handle_play_message(data)
         else:
-            print('Unknown message received: ' + action)
+            self.error('Unknown message received: ' + action)
 
     def handleConnected(self):
-        print self.address, 'connected'
+        SimpleLogger.__init__(self)
+        self.info('{} connected'.format(self.address))
         self.gs_lock = threading.Lock()
         self.set_gs(GameState.CONN)
 
     def handleClose(self):
-        print self.address, 'closed'
+        self.info('{} closed'.format(self.address))
         self.set_gs(GameState.CLOSE)
 
     def handle_connect_message(self, data):
@@ -171,7 +173,7 @@ class WSServer(WebSocket):
                 if self.get_gs() == GameState.CLOSE:
                     return
             except GameException as e:
-                print('Error: ' + str(e))
+                self.error('Game session error: ' + str(e))
 
     def on_msg_sess(self, msg):
         err = msg.get_uint8()

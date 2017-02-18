@@ -3,13 +3,17 @@ import socket
 import ssl
 
 from messagebuf import MessageBuf
+from simplelogger import SimpleLogger
 
 
 class AuthException(Exception):
     pass
 
 
-class AuthClient:
+class AuthClient(SimpleLogger):
+    def __init__(self):
+        SimpleLogger.__init__(self)
+
     def connect(self, host, port, cert_path):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,14 +61,14 @@ class AuthClient:
 
     def __send_msg(self, msg):
         msg = self.__prepend_header(msg)
-        print '>', str(msg)
+        self.info('> ' + str(msg))
         self.ws.sendall(msg.buf)
 
     def __recv_msg(self):
         header = MessageBuf(self.__recv_bytes(2))
         data_len = header.get_uint16(be=True)
         msg = MessageBuf(self.__recv_bytes(data_len))
-        print '<', str(msg)
+        self.info('< ' + str(msg))
         return msg
 
     def __recv_bytes(self, l):
