@@ -65,6 +65,10 @@ class WSServer(WebSocket, SimpleLogger):
             )
 
             self.charlist_wdg_id = -1
+            self.gameui_wdg_id = -1
+            self.chr_wdg_id = -1
+            self.inv_wdg_id = -1
+            self.study_wdg_id = -1
             self.rseq = 0
             self.wseq = 0
             self.rmsgs = []
@@ -169,6 +173,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_msg_objdata(data)
                 elif msg_type == MessageType.MSG_CLOSE:
                     self.on_msg_close()
+                else:
+                    pass
 
                 if self.get_gs() == GameState.CLOSE:
                     return
@@ -213,15 +219,40 @@ class WSServer(WebSocket, SimpleLogger):
         wdg_id = msg.get_uint16()
         wdg_type = msg.get_string()
         wdg_parent = msg.get_uint16()
+        wdg_pargs = msg.get_list()
+        wdg_cargs = msg.get_list()
 
         if wdg_type == 'charlist':
             self.charlist_wdg_id = wdg_id
         elif wdg_type == 'gameui':
-            pass
+            self.gameui_wdg_id = wdg_id
         elif wdg_type == 'inv':
-            pass
+            if wdg_parent == self.gameui_wdg_id:
+                self.inv_wdg_id = wdg_id
+            elif wdg_parent == self.chr_wdg_id:
+                self.study_wdg_id = wdg_id
+            else:
+                pass
+        elif wdg_type == 'chr':
+            self.chr_wdg_id = wdg_id
         elif wdg_type == 'item':
-            pass
+            if wdg_parent == self.inv_wdg_id:
+                wdg = 'inv'
+            elif wdg_parent == self.study_wdg_id:
+                wdg = 'study'
+            else:
+                return
+            coords = wdg_pargs[0]
+            resid = wdg_cargs[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'item',
+                    'wdg': wdg,
+                    'x': coords.x,
+                    'y': coords.y,
+                    'resid': resid
+                }))
+            )
         else:
             pass
 
