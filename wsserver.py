@@ -7,7 +7,9 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 from authclient import AuthClient, AuthException
 from config import Config
 from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
+from item import Item
 from messagebuf import MessageBuf
+from resource import ResLoader
 from simplelogger import SimpleLogger
 
 
@@ -73,6 +75,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.wseq = 0
             self.rmsgs = []
             self.rmsgs_lock = threading.Lock()
+            self.items = []
+            self.items_lock = threading.Lock()
 
             self.gc = GameClient(WSServer.config.game_host, WSServer.config.game_port)
 
@@ -153,6 +157,24 @@ class WSServer(WebSocket, SimpleLogger):
                 if now - last > 5:
                     self.gc.beat()
                     last = now
+
+                # TODO: Make copy
+                with self.items_lock:
+                    for item in self.items:
+                        if item.sent:
+                            continue
+                        info = item.build()
+                        if info is None:
+                            continue
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'item',
+                                'study': item.study,
+                                'info': info
+                            }))
+                        )
+                        item.sent = True
+
                 time.sleep(0.3)
             elif gs == GameState.CLOSE:
                 return
@@ -209,6 +231,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_rmsg_newwdg(rmsg)
                 elif rel_type == RelMessageType.RMSG_WDGMSG:
                     self.on_rmsg_wdgmsg(rmsg)
+                elif rel_type == RelMessageType.RMSG_RESID:
+                    self.on_rmsg_resid(rmsg)
                 else:
                     pass
                 self.gc.ack(seq)
@@ -244,15 +268,10 @@ class WSServer(WebSocket, SimpleLogger):
                 return
             coords = wdg_pargs[0]
             resid = wdg_cargs[0]
-            self.sendMessage(
-                unicode(json.dumps({
-                    'action': 'item',
-                    'wdg': wdg,
-                    'x': coords.x,
-                    'y': coords.y,
-                    'resid': resid
-                }))
-            )
+            with self.items_lock:
+                item = Item(wdg_id, coords, resid, study=(wdg == 'study'))
+                item.sent = False
+                self.items.append(item)
         else:
             pass
 
@@ -271,11 +290,20 @@ class WSServer(WebSocket, SimpleLogger):
                     }))
                 )
         elif wdg_msg == 'tt':
-            pass
+            with self.items_lock:
+                for item in self.items:
+                    if item.wdg_id == wdg_id:
+                        item.add_info(wdg_args)
         elif wdg_msg == 'err':
             pass
         else:
             pass
+
+    def on_rmsg_resid(self, msg):
+        resid = msg.get_uint16()
+        resname = msg.get_string()
+        resver = msg.get_uint16()
+        ResLoader.add_map(resid, resname, resver)
 
     def on_msg_ack(self, msg):
         ack = msg.get_uint16()

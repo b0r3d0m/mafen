@@ -17,6 +17,7 @@ class MessageType(object):
 class RelMessageType(object):
     RMSG_NEWWDG = 0
     RMSG_WDGMSG = 1
+    RMSG_RESID = 6
 
 
 class ObjDataType(object):
@@ -55,6 +56,8 @@ class GameException(Exception):
 
 
 class GameClient(SimpleLogger):
+    SERVER_TIME_RATIO = 3.29
+
     def __init__(self, host, port):
         SimpleLogger.__init__(self)
         try:
