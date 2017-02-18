@@ -1,3 +1,4 @@
+import copy
 import json
 import threading
 import time
@@ -34,6 +35,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_connect_message(data)
         elif action == 'play':
             self.handle_play_message(data)
+        elif action == 'transfer':
+            self.handle_transfer_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -117,6 +120,29 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_list([char_name])
         self.queue_rmsg(msg)
 
+    def handle_transfer_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        item_id = data['id']
+
+        coords = None
+        with self.items_lock:
+            for item in self.items:
+                if item.wdg_id == item_id:
+                    coords = copy.copy(item.coords)
+        if coords is None:
+            # TODO: Send response back to the client
+            return
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(item_id)
+        msg.add_string('transfer')
+        msg.add_list([coords])
+        self.queue_rmsg(msg)
+
     def queue_rmsg(self, rmsg):
         msg = MessageBuf()
         msg.add_uint8(MessageType.MSG_REL)
@@ -169,6 +195,7 @@ class WSServer(WebSocket, SimpleLogger):
                         self.sendMessage(
                             unicode(json.dumps({
                                 'action': 'item',
+                                'id': item.wdg_id,
                                 'study': item.study,
                                 'info': info
                             }))
