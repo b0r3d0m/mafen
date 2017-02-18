@@ -1,0 +1,14 @@
+@keyframes hue {
+  from { filter: hue-rotate(0deg);    -webkit-filter: hue-rotate(0deg);  }
+  to   { filter: hue-rotate(-360deg); -webkit-filter: hue-rotate(-360deg); }
+}
+
+.change-hue-animation {
+  animation: hue 60s infinite linear;
+  -webkit-animation: hue 60s infinite linear;
+}
+
+.change-hue-fast-animation {
+  animation: hue 1s linear;
+  -webkit-animation: hue 1s linear;
+}

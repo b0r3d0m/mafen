@@ -1,0 +1,11 @@
+<div class="modal-header">
+  <h3 class="modal-title" id="charlist-modal-title">Character list</h3>
+</div>
+<div class="modal-body" id="charlist-modal-body">
+  <div class="list-group">
+    <button type="button" class="list-group-item" ng-repeat="character in characters" ng-click="$ctrl.chooseCharacter(character)">{{character}}</button>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" type="button" ng-click="$ctrl.close()">Close</button>
+</div>

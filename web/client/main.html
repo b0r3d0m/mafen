@@ -1,0 +1,41 @@
+<nav class="nav navbar navbar-default">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#/">Mafen</a>
+  </div>
+  <div class="collapse navbar-collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#/" ng-click="logout()">Logout</a></li>
+    </ul>
+  </div>
+</nav>
+<h3>Items</h3>
+<table class="table table-striped table-bordered" border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tooltip</th>
+      <th>Quality</th>
+      <th>LP</th>
+      <th>Weight</th>
+      <th>Exp</th>
+      <th>Time</th>
+      <th></th>
+    <tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="item in items">
+      <td>{{item.id}}</td>
+      <td>{{item.info.tooltip}}</td>
+      <td>{{item.info.q}}</td>
+      <td>{{item.info.exp}}</td>
+      <td>{{item.info.mw}}</td>
+      <td>{{item.info.enc}}</td>
+      <td>{{item.info.time}}</td>
+      <td>
+        <button ng-class="{btn: true, 'btn-primary': !item.study, 'btn-danger': item.study}" ng-click="transferItem(item.id)" ng-disabled="!item.info.curio">
+          {{item.study ? 'Unstudy' : 'Study'}}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
