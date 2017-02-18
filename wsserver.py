@@ -258,6 +258,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_rmsg_newwdg(rmsg)
                 elif rel_type == RelMessageType.RMSG_WDGMSG:
                     self.on_rmsg_wdgmsg(rmsg)
+                elif rel_type == RelMessageType.RMSG_DSTWDG:
+                    self.on_rmsg_dstwdg(rmsg)
                 elif rel_type == RelMessageType.RMSG_RESID:
                     self.on_rmsg_resid(rmsg)
                 elif rel_type == RelMessageType.RMSG_CATTR:
@@ -327,6 +329,15 @@ class WSServer(WebSocket, SimpleLogger):
             pass
         else:
             pass
+
+    def on_rmsg_dstwdg(self, msg):
+        wdg_id = msg.get_uint16()
+        self.sendMessage(
+            unicode(json.dumps({
+                'action': 'destroy',
+                'id': wdg_id
+            }))
+        )
 
     def on_rmsg_resid(self, msg):
         resid = msg.get_uint16()
