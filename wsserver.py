@@ -233,6 +233,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_rmsg_wdgmsg(rmsg)
                 elif rel_type == RelMessageType.RMSG_RESID:
                     self.on_rmsg_resid(rmsg)
+                elif rel_type == RelMessageType.RMSG_CATTR:
+                    self.on_rmsg_cattr(rmsg)
                 else:
                     pass
                 self.gc.ack(seq)
@@ -304,6 +306,21 @@ class WSServer(WebSocket, SimpleLogger):
         resname = msg.get_string()
         resver = msg.get_uint16()
         ResLoader.add_map(resid, resname, resver)
+
+    def on_rmsg_cattr(self, msg):
+        attrs = []
+        while not msg.eom():
+            attr = {}
+            attr['name'] = msg.get_string()
+            attr['base'] = msg.get_int32()
+            attr['comp'] = msg.get_int32()
+            attrs.append(attr)
+        self.sendMessage(
+            unicode(json.dumps({
+                'action': 'attr',
+                'attrs': attrs
+            }))
+        )
 
     def on_msg_ack(self, msg):
         ack = msg.get_uint16()
