@@ -249,7 +249,7 @@ class WSServer(WebSocket, SimpleLogger):
     def on_msg_ack(self, msg):
         ack = msg.get_uint16()
         with self.rmsgs_lock:
-            rmsgs = [rmsg for rmsg in self.rmsgs if rmsg.seq > ack]
+            self.rmsgs = [rmsg for rmsg in self.rmsgs if rmsg.seq > ack]
 
     def on_msg_objdata(self, msg):
         # NOTE: We don't really need to handle these messages,
