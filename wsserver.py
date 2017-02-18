@@ -408,6 +408,7 @@ class WSServer(WebSocket, SimpleLogger):
             msg.add_uint8(MessageType.MSG_OBJACK)
             msg.add_uint32(id)
             msg.add_int32(frame)
+            self.gc.send_msg(msg)
 
     def on_msg_close(self):
         self.set_gs(GameState.CLOSE)
