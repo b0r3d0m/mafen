@@ -332,12 +332,17 @@ class WSServer(WebSocket, SimpleLogger):
 
     def on_rmsg_dstwdg(self, msg):
         wdg_id = msg.get_uint16()
-        self.sendMessage(
-            unicode(json.dumps({
-                'action': 'destroy',
-                'id': wdg_id
-            }))
-        )
+        with self.items_lock:
+            for item in self.items[:]:
+                if item.wdg_id == wdg_id:
+                    self.sendMessage(
+                        unicode(json.dumps({
+                            'action': 'destroy',
+                            'id': wdg_id
+                        }))
+                    )
+                    self.items.remove(item)
+                    break
 
     def on_rmsg_resid(self, msg):
         resid = msg.get_uint16()
