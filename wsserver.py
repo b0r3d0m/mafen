@@ -102,6 +102,12 @@ class WSServer(WebSocket, SimpleLogger):
     def set_gs(self, gs):
         with self.gs_lock:
             self.gs = gs
+            if self.gs == GameState.CLOSE:
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'close'
+                    }))
+                )
 
     def get_gs(self):
         with self.gs_lock:
@@ -163,12 +169,6 @@ class WSServer(WebSocket, SimpleLogger):
             if gs == GameState.CONN:
                 if now - last > 2:
                     if conn_retries > 5:
-                        self.sendMessage(
-                            unicode(json.dumps({
-                                'action': 'close',
-                                'reason': 'Unable to initiate the game session'
-                            }))
-                        )
                         self.set_gs(GameState.CLOSE)
                         return
                     self.gc.start_session(self.username, self.cookie)
@@ -235,12 +235,6 @@ class WSServer(WebSocket, SimpleLogger):
         if err == 0:
             self.set_gs(GameState.PLAY)
         else:
-            self.sendMessage(
-                unicode(json.dumps({
-                    'action': 'close',
-                    'reason': 'Unable to initiate the game session'
-                }))
-            )
             self.set_gs(GameState.CLOSE)
 
     def on_msg_rel(self, msg):
