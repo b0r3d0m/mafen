@@ -1,7 +1,7 @@
 import struct
 
 
-class Type:
+class Type(object):
     T_END = 0
     T_INT = 1
     T_STR = 2
@@ -19,13 +19,13 @@ class Type:
     T_FLOAT64 = 16
 
 
-class Coord:
+class Coord(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
-class Color:
+class Color(object):
     def __init__(self, r, g, b, a):
         self.r = r
         self.g = g
@@ -33,7 +33,7 @@ class Color:
         self.a = a
 
 
-class MessageBuf:
+class MessageBuf(object):
     def __init__(self, buf=bytearray()):
         self._buf = bytearray(buf)
         self.pos = 0

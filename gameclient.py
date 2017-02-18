@@ -4,7 +4,7 @@ from messagebuf import MessageBuf
 from simplelogger import SimpleLogger
 
 
-class MessageType:
+class MessageType(object):
     MSG_SESS = 0
     MSG_REL = 1
     MSG_ACK = 2
@@ -14,12 +14,12 @@ class MessageType:
     MSG_CLOSE = 8
 
 
-class RelMessageType:
+class RelMessageType(object):
     RMSG_NEWWDG = 0
     RMSG_WDGMSG = 1
 
 
-class ObjDataType:
+class ObjDataType(object):
     OD_REM = 0
     OD_MOVE = 1
     OD_RES = 2
@@ -44,7 +44,7 @@ class ObjDataType:
     OD_END = 255
 
 
-class GameState:
+class GameState(object):
     CONN = 0
     PLAY = 1
     CLOSE = 2
