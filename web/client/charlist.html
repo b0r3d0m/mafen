@@ -3,9 +3,9 @@
 </div>
 <div class="modal-body" id="charlist-modal-body">
   <div class="list-group">
-    <button type="button" class="list-group-item" ng-repeat="character in characters" ng-click="$ctrl.chooseCharacter(character)">{{character}}</button>
+    <button type="button" class="list-group-item" ng-repeat="character in characters" ng-click="chooseCharacter(character)">{{character}}</button>
   </div>
 </div>
 <div class="modal-footer">
-  <button class="btn btn-primary" type="button" ng-click="$ctrl.close()">Close</button>
+  <button class="btn btn-primary" type="button" ng-click="close()">Close</button>
 </div>

@@ -80,7 +80,6 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
           ariaDescribedBy: 'charlist-modal-body',
           templateUrl: 'charlist.html',
           controller: 'CharacterListModalCtrl',
-          controllerAs: '$ctrl',
           size: 'lg'
         });
         loggedIn = true;
@@ -168,23 +167,21 @@ app.controller('MainCtrl', function($rootScope, $scope) {
   };
 });
 
-app.controller('CharacterListModalCtrl', function($rootScope, $location, $uibModalInstance) {
+app.controller('CharacterListModalCtrl', function($rootScope, $scope, $location, $uibModalInstance) {
   'ngInject';
 
-  var $ctrl = this;
-
-  $ctrl.chooseCharacter = function(character) {
+  $scope.chooseCharacter = function(character) {
     $rootScope.ws.send(JSON.stringify({
       action: 'play',
       data: {
         char_name: character
       }
     }));
-    $ctrl.close();
+    $scope.close();
     $location.url('/');
   };
 
-  $ctrl.close = function() {
+  $scope.close = function() {
     $uibModalInstance.dismiss('cancel');
   };
 });
