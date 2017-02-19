@@ -78,7 +78,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
         $uibModal.open({
           ariaLabelledBy: 'charlist-modal-title',
           ariaDescribedBy: 'charlist-modal-body',
-          templateUrl: 'CharacterListModalContent.html',
+          templateUrl: 'charlist.html',
           controller: 'CharacterListModalCtrl',
           controllerAs: '$ctrl',
           size: 'lg'
