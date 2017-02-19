@@ -56,8 +56,11 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
     $location.url('/login');
   };
 
+  // TODO: Move the following code to the service
+
   $rootScope.characters = [];
   $rootScope.items = [];
+  $rootScope.attrs = {};
 
   $rootScope.ws = new WebSocket('ws://127.0.0.1:8000');
 
@@ -82,18 +85,29 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
       }
     } else if (msg.action === 'character') {
       $rootScope.characters.push(msg.name);
-      $rootScope.$apply();
     } else if (msg.action === 'item') {
       $rootScope.items.push(msg);
-      $rootScope.$apply();
     } else if (msg.action === 'destroy') {
       $rootScope.items = $rootScope.items.filter(function(item) {
         return item.id !== msg.id;
       });
-      $rootScope.$apply();
+    } else if (msg.action === 'attr') {
+      $rootScope.attrs = msg.attrs;
     } else {
       // TODO
     }
+    $rootScope.$apply();
+  };
+
+  $rootScope.getTotalMW = function() {
+    var total = 0;
+    for (var i = 0; i < $rootScope.items.length; ++i) {
+      var item = $rootScope.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.mw;
+      }
+    }
+    return total;
   };
 });
 

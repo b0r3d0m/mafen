@@ -345,13 +345,15 @@ class WSServer(WebSocket, SimpleLogger):
         ResLoader.add_map(resid, resname, resver)
 
     def on_rmsg_cattr(self, msg):
-        attrs = []
+        attrs = {}
         while not msg.eom():
-            attr = {}
-            attr['name'] = msg.get_string()
-            attr['base'] = msg.get_int32()
-            attr['comp'] = msg.get_int32()
-            attrs.append(attr)
+            name = msg.get_string()
+            base = msg.get_int32()
+            comp = msg.get_int32()
+            attrs[name] = {
+                'base': base,
+                'comp': comp
+            }
         self.sendMessage(
             unicode(json.dumps({
                 'action': 'attr',
