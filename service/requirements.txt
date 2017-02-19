@@ -1,0 +1,2 @@
+requests == 2.10.0
+git+https://github.com/dpallot/simple-websocket-server.git@6e455f4#egg=simple-websocket-server

@@ -2,10 +2,12 @@
 
 ![logo](http://www.samsmartinc.com/assets/user/upload/images/muffin.png)
 
-mafen is a web-based application that helps u with various [Hafen & Hearth](http://www.havenandhearth.com/portal/) tasks.
+**mafen** is a web-based application that helps u with various [Hafen & Hearth](http://www.havenandhearth.com/portal/) tasks.
 For example, you can check your character's inventory and study any items you want. Note that you can do it from any device you have at the moment. No need to launch a full desktop H&H client at all!
 
 ![main page](http://i.imgur.com/BFGu2yB.png)
+
+**(click me)**
 
 ## Usage
 
@@ -15,6 +17,7 @@ For example, you can check your character's inventory and study any items you wa
 
 ### Start service
 * cd service
+* pip install -r requirements.txt
 * vim config.ini (optional)
 * python main.py &
 
@@ -23,7 +26,7 @@ For example, you can check your character's inventory and study any items you wa
 * npm install
 * vim server/config.json (optional)
 * gulp bundle-js
-* node server/index.js
+* node server/index.js & # consider about using [forever](https://github.com/foreverjs/forever) though
 
 ## License
 
