@@ -1,3 +1,5 @@
+import base64
+
 from gameclient import GameClient
 from resource import ResLoader
 
@@ -27,6 +29,9 @@ class Item(object):
             for layer in res.layers:
                 if layer.ltype == 'tooltip':
                     info['tooltip'] = unicode(layer.ldata)
+                elif layer.ltype == 'image':
+                    img = layer.ldata[11:]  # Skip metadata
+                    info['image'] = 'data:image/png;base64,' + base64.b64encode(img)
                 else:
                     pass
 
