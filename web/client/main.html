@@ -22,6 +22,7 @@
       <th>Weight</th>
       <th>Exp</th>
       <th>Time</th>
+      <th>Progress</th>
       <th></th>
     <tr>
   </thead>
@@ -35,6 +36,7 @@
       <td>{{item.info.mw}}</td>
       <td>{{item.info.enc}}</td>
       <td>{{item.info.time | number: 2}}</td>
+      <td>{{getProgress(item.id)}}</td>
       <td>
         <button ng-class="{btn: true, 'btn-primary': !item.study, 'btn-danger': item.study}" ng-click="transferItem(item.id)" ng-disabled="!item.info.curio">
           {{item.study ? 'Unstudy' : 'Study'}}

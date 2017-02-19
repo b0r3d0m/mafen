@@ -62,6 +62,7 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
 
   $rootScope.characters = [];
   $rootScope.items = [];
+  $rootScope.meters = {};
   $rootScope.attrs = {};
 
   $rootScope.ws = new WebSocket('ws://127.0.0.1:8000');
@@ -93,8 +94,11 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
       $rootScope.items = $rootScope.items.filter(function(item) {
         return item.id !== msg.id;
       });
+      delete $rootScope.meters[msg.id];
     } else if (msg.action === 'attr') {
       $rootScope.attrs = msg.attrs;
+    } else if (msg.action === 'meter') {
+      $rootScope.meters[msg.id] = msg.meter;
     } else {
       // TODO
     }
@@ -110,6 +114,21 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
       }
     }
     return total;
+  };
+
+  $rootScope.getProgress = function(id) {
+    var progress = '';
+    for (var i = 0; i < $rootScope.items.length; ++i) {
+      var item = $rootScope.items[i];
+      if (item.id === id) {
+        var meter = $rootScope.meters[id];
+        if (meter !== undefined) {
+          progress = meter + '%';
+        }
+        break;
+      }
+    }
+    return progress;
   };
 });
 

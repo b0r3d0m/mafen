@@ -319,6 +319,15 @@ class WSServer(WebSocket, SimpleLogger):
                 for item in self.items:
                     if item.wdg_id == wdg_id:
                         item.add_info(wdg_args)
+        elif wdg_msg == 'meter':
+            meter = wdg_args[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'meter',
+                    'id': wdg_id,
+                    'meter': meter
+                }))
+            )
         elif wdg_msg == 'err':
             pass
         else:
