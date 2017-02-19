@@ -8,12 +8,13 @@ require('./app.css');
 require('angular');
 require('angular-route');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
+require('alertify.js/dist/js/ngAlertify.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 
 // TODO
 var loggedIn = false;
 
-var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
 .config(function($routeProvider, $locationProvider) {
   'ngInject';
 
@@ -49,7 +50,7 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
       redirectTo: '/'
     });
 })
-.run(function($rootScope, $location, $uibModal) {
+.run(function($rootScope, $location, $uibModal, alertify) {
   'ngInject';
 
   $rootScope.logout = function() {
@@ -84,7 +85,7 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
         });
         loggedIn = true;
       } else {
-        // TODO: Show alert
+        alertify.error('Authentication failed');
       }
     } else if (msg.action === 'character') {
       $rootScope.characters.push(msg.name);
