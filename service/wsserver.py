@@ -54,7 +54,7 @@ class WSServer(WebSocket, SimpleLogger):
         self.username = data['username']
         self.password = data['password']
         try:
-            ac = AuthClient()
+            ac = AuthClient(WSServer.config.verbose)
             ac.connect(
                 WSServer.config.auth_host,
                 WSServer.config.auth_port,
@@ -81,7 +81,11 @@ class WSServer(WebSocket, SimpleLogger):
             self.items = []
             self.items_lock = threading.Lock()
 
-            self.gc = GameClient(WSServer.config.game_host, WSServer.config.game_port)
+            self.gc = GameClient(
+                WSServer.config.game_host,
+                WSServer.config.game_port,
+                WSServer.config.verbose
+            )
 
             self.rworker_th = threading.Thread(target=self.rworker)
             self.rworker_th.daemon = True

@@ -60,8 +60,9 @@ class GameException(Exception):
 class GameClient(SimpleLogger):
     SERVER_TIME_RATIO = 3.29
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, verbose=False):
         SimpleLogger.__init__(self)
+        self.verbose = verbose
         try:
             self.host = host
             self.port = port
@@ -84,7 +85,8 @@ class GameClient(SimpleLogger):
     def recv_msg(self):
         data, addr = self.s.recvfrom(65535)
         msg = MessageBuf(data)
-        self.info('< ' + str(msg))
+        if self.verbose:
+            self.info('< ' + str(msg))
         return msg
 
     def ack(self, seq):
@@ -99,5 +101,6 @@ class GameClient(SimpleLogger):
         self.send_msg(msg)
 
     def send_msg(self, msg):
-        self.info('> ' + str(msg))
+        if self.verbose:
+            self.info('> ' + str(msg))
         self.s.sendto(msg.buf, (self.host, self.port))

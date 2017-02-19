@@ -10,8 +10,9 @@ class AuthException(Exception):
 
 
 class AuthClient(SimpleLogger):
-    def __init__(self):
+    def __init__(self, verbose=False):
         SimpleLogger.__init__(self)
+        self.verbose = verbose
 
     def connect(self, host, port, cert_path):
         try:
@@ -60,14 +61,16 @@ class AuthClient(SimpleLogger):
 
     def __send_msg(self, msg):
         msg = self.__prepend_header(msg)
-        self.info('> ' + str(msg))
+        if self.verbose:
+            self.info('> ' + str(msg))
         self.ws.sendall(msg.buf)
 
     def __recv_msg(self):
         header = MessageBuf(self.__recv_bytes(2))
         data_len = header.get_uint16(be=True)
         msg = MessageBuf(self.__recv_bytes(data_len))
-        self.info('< ' + str(msg))
+        if self.verbose:
+            self.info('< ' + str(msg))
         return msg
 
     def __recv_bytes(self, l):
