@@ -27,7 +27,7 @@
   </thead>
   <tbody>
     <tr ng-repeat="item in items">
-      <td><img src={{item.info.image}}></td>
+      <td><img ng-src="{{item.info.image}}"></td>
       <td>{{item.info.tooltip}}</td>
       <td>{{item.info.q | number: 2}}</td>
       <td>{{item.info.exp}}</td>
