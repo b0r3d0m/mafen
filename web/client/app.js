@@ -159,6 +159,12 @@ app.controller('MainCtrl', function($rootScope, $scope) {
       }
     }));
   };
+
+  $scope.minutesToHoursMinutes = function(totalMins) {
+    var hours = Math.floor(totalMins / 60);
+    var minutes = totalMins % 60;
+    return hours + ':' + parseInt(minutes, 10);
+  };
 });
 
 app.controller('CharacterListModalCtrl', function($rootScope, $location, $uibModalInstance) {
