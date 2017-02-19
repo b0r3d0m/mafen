@@ -1,4 +1,3 @@
-import hashlib
 import socket
 import ssl
 
@@ -26,7 +25,7 @@ class AuthClient(SimpleLogger):
         msg = MessageBuf()
         msg.add_string('pw')
         msg.add_string(username)
-        msg.add_bytes(hashlib.sha256(password).digest())  # TODO: Let a client to hash its password
+        msg.add_bytes(password.decode('hex'))
         self.__send_msg(msg)
 
         rpl = self.__recv_msg()

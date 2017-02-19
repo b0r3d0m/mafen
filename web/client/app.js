@@ -8,6 +8,7 @@ require('./app.css');
 require('angular');
 require('angular-route');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
+var jsSHA256 = require('js-sha256/build/sha256.min.js');
 
 // TODO
 var loggedIn = false;
@@ -52,7 +53,8 @@ var app = angular.module('app', ['ngRoute', 'ui.bootstrap'])
   'ngInject';
 
   $rootScope.logout = function() {
-    // TODO: Close WebSocket
+    $rootScope.ws.close();
+    loggedIn = false;
     $location.url('/login');
   };
 
@@ -121,7 +123,7 @@ app.controller('LoginCtrl', function($rootScope, $scope, $location) {
       action: 'connect',
       data: {
         username: $scope.user.username,
-        password: $scope.user.password // TODO: SHA-256
+        password: jsSHA256.sha256($scope.user.password)
       }
     }));
   };
