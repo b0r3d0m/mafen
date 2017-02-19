@@ -32,7 +32,7 @@
       <td>{{item.info.exp}}</td>
       <td>{{item.info.mw}}</td>
       <td>{{item.info.enc}}</td>
-      <td>{{item.info.time}}</td>
+      <td>{{item.info.time | number: 2}}</td>
       <td>
         <button ng-class="{btn: true, 'btn-primary': !item.study, 'btn-danger': item.study}" ng-click="transferItem(item.id)" ng-disabled="!item.info.curio">
           {{item.study ? 'Unstudy' : 'Study'}}
