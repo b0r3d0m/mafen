@@ -42,6 +42,9 @@ class SimpleLogger(object):
     def __init__(self):
         self.root_logger = logging.getLogger(self.__class__.__name__)
 
+        if len(self.root_logger.handlers) != 0:
+            return
+
         self.root_logger.setLevel(logging.INFO)
 
         fh = logging.handlers.TimedRotatingFileHandler('log_', when='midnight')
