@@ -1,0 +1,25 @@
+body {
+  padding-top: 10px;
+}
+
+/* ===================== */
+/* Sticky footer styles from Bootstrap example */
+/* https://getbootstrap.com/examples/sticky-footer/sticky-footer.css */
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 90px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 95%; /* TODO: Think about more elegant way to do it */
+  height: 90px;
+}
+
+/* ===================== */

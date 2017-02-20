@@ -1,8 +1,12 @@
-body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #f5f5f5;
+html {
+  background: url(/bg.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
+
+/* ===================== */
 
 .form-signin {
   max-width: 300px;
@@ -31,26 +35,6 @@ body {
 
 h2 {
   display: inline-block;
-}
-
-/* ===================== */
-/* Sticky footer styles from Bootstrap example */
-/* https://getbootstrap.com/examples/sticky-footer/sticky-footer.css */
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 90px;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 95%; /* TODO: Think about more elegant way to do it */
-  height: 90px;
 }
 
 /* ===================== */

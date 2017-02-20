@@ -3,19 +3,17 @@
 require('@cgross/angular-busy/dist/angular-busy.min.css');
 require('angular-tablesort/tablesort.css');
 require('bootstrap/dist/css/bootstrap.min.css');
-require('./ribbons.css');
-require('./hue.css');
-require('./app.css');
 
 require('angular');
 require('@cgross/angular-busy/dist/angular-busy.min.js');
+require('angular-css');
 require('angular-route');
 require('angular-tablesort');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort'])
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS'])
 .service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
   'ngInject';
 
@@ -150,13 +148,15 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     .when('/', {
       templateUrl: 'main.html',
       controller: 'MainCtrl',
+      css: 'main.css',
       resolve: {
         loggedin: checkLoggedIn
       }
     })
     .when('/login', {
       templateUrl: 'login.html',
-      controller: 'LoginCtrl'
+      controller: 'LoginCtrl',
+      css: ['login.css', 'ribbons.css', 'hue.css']
     })
     .otherwise({
       redirectTo: '/'
