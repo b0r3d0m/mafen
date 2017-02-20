@@ -31,3 +31,5 @@ For example, you can check your character's inventory and study any items you wa
 ## License
 
 Copyright © 2017 b0r3d0m <b0r3d0mness@gmail.com>
+
+Distributed under the [MIT License](LICENSE.txt).
