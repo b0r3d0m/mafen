@@ -107,11 +107,7 @@ class WSServer(WebSocket, SimpleLogger):
         with self.gs_lock:
             self.gs = gs
             if self.gs == GameState.CLOSE:
-                self.sendMessage(
-                    unicode(json.dumps({
-                        'action': 'close'
-                    }))
-                )
+                self.close()  # TODO: Add reason
 
     def get_gs(self):
         with self.gs_lock:
