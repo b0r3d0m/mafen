@@ -1,23 +1,26 @@
 'use strict';
 
+require('@cgross/angular-busy/dist/angular-busy.min.css');
 require('bootstrap/dist/css/bootstrap.min.css');
 require('./ribbons.css');
 require('./hue.css');
 require('./app.css');
 
 require('angular');
+require('@cgross/angular-busy/dist/angular-busy.min.js');
 require('angular-route');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
-.service('mafenSession', function($rootScope, $uibModal, alertify, $timeout) {
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy'])
+.service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
   'ngInject';
 
   var that = this;
 
   this.reset = function() {
+    that.loginDeferred = $q.defer();
     that.loggedIn = false;
     that.characters = [];
     that.items = [];
@@ -37,8 +40,9 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
           controller: 'CharacterListModalCtrl'
         });
         that.loggedIn = true;
+        that.loginDeferred.resolve();
       } else {
-        alertify.error('Authentication failed');
+        that.loginDeferred.reject();
       }
     } else if (msg.action === 'character') {
       that.characters.push(msg.name);
@@ -72,6 +76,17 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
   this.connect = function(addr) {
     that.ws = new WebSocket(addr);
     that.ws.onmessage = onmessage;
+  };
+
+  this.login = function(username, password) {
+    that.send({
+      action: 'connect',
+      data: {
+        username: username,
+        password: jsSHA256.sha256(password)
+      }
+    });
+    return that.loginDeferred.promise;
   };
 
   this.send = function(data) {
@@ -155,7 +170,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
   };
 });
 
-app.controller('LoginCtrl', function($scope, mafenSession) {
+app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -165,12 +180,11 @@ app.controller('LoginCtrl', function($scope, mafenSession) {
   $scope.login = function() {
     $scope.mafenSession.reset();
     $scope.mafenSession.connect('ws://127.0.0.1:8000');
-    $scope.mafenSession.send({
-      action: 'connect',
-      data: {
-        username: $scope.user.username,
-        password: jsSHA256.sha256($scope.user.password)
-      }
+    $scope.loginPromise = $scope.mafenSession.login($scope.user.username, $scope.user.password);
+    $scope.loginPromise.then(function() {
+      // Success callback
+    }, function() {
+      alertify.error('Authentication failed');
     });
   };
 });

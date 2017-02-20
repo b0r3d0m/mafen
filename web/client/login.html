@@ -1,8 +1,11 @@
 <div class="center-both">
-  <form class="form-signin" ng-submit="login()">
-    <h2>Please sign in</h2>
-    <input type="text" class="form-control" placeholder="Username" ng-model="user.username" />
-    <input type="password" class="form-control" placeholder="Password" ng-model="user.password" /><br/>
-    <button type="submit" class="btn btn-primary">Sign in</button>
-  </form>
+  <!--Yeah, we have to define a separate div for the cgBusy. Otherwise it'll mess up with our own styles-->
+  <div cg-busy="loginPromise">
+    <form class="form-signin" ng-submit="login()">
+      <h2>Please sign in</h2>
+      <input type="text" class="form-control" placeholder="Username" ng-model="user.username" />
+      <input type="password" class="form-control" placeholder="Password" ng-model="user.password" /><br/>
+      <button type="submit" class="btn btn-primary">Sign in</button>
+    </form>
+  </div>
 </div>

@@ -9,6 +9,7 @@
   "author": "b0r3d0m <b0r3d0mness@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@cgross/angular-busy": "^4.1.4",
     "alertify.js": "^1.0.12",
     "angular": "^1.5.8",
     "angular-route": "^1.5.8",
