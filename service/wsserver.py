@@ -158,7 +158,7 @@ class WSServer(WebSocket, SimpleLogger):
         msg.seq = self.wseq
         with self.rmsgs_lock:
             self.rmsgs.append(msg)
-        self.wseq += 1
+        self.wseq = (self.wseq + 1) % 65536
 
     def sworker(self):
         last = 0
@@ -261,7 +261,7 @@ class WSServer(WebSocket, SimpleLogger):
                 else:
                     pass
                 self.gc.ack(seq)
-                self.rseq += 1  # TODO: Handle overflow
+                self.rseq = (self.rseq + 1) % 65536
             seq += 1
 
     def on_rmsg_newwdg(self, msg):
