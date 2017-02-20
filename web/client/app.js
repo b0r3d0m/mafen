@@ -114,7 +114,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
 .config(function($routeProvider, $locationProvider) {
   'ngInject';
 
-  var checkLoggedin = function($q, $location, mafenSession) {
+  var checkLoggedIn = function($q, $location, mafenSession) {
     'ngInject';
 
     var deferred = $q.defer();
@@ -134,7 +134,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
       templateUrl: 'main.html',
       controller: 'MainCtrl',
       resolve: {
-        loggedin: checkLoggedin
+        loggedin: checkLoggedIn
       }
     })
     .when('/login', {
