@@ -117,7 +117,6 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
   var checkLoggedin = function($q, $location, mafenSession) {
     'ngInject';
 
-    // TODO: remove defer
     var deferred = $q.defer();
 
     if (mafenSession.loggedIn) {
