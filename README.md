@@ -28,6 +28,11 @@ For example, you can check your character's inventory and study any items you wa
 * gulp bundle-js
 * node server/index.js & # consider about using [forever](https://github.com/foreverjs/forever) though
 
+## How can I help?
+* ![star](http://github-svg-buttons.herokuapp.com/star.svg?user=b0r3d0m&repo=mafen) this project!
+* ![fork](http://github-svg-buttons.herokuapp.com/fork.svg?user=b0r3d0m&repo=mafen) and create pull requests with any changes you want
+* Feel free to send me an email with feature requests and your feedback
+
 ## License
 
 Copyright © 2017 b0r3d0m <b0r3d0mness@gmail.com>
