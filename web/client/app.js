@@ -34,8 +34,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap'])
           ariaLabelledBy: 'charlist-modal-title',
           ariaDescribedBy: 'charlist-modal-body',
           templateUrl: 'charlist.html',
-          controller: 'CharacterListModalCtrl',
-          size: 'lg'
+          controller: 'CharacterListModalCtrl'
         });
         that.loggedIn = true;
       } else {
