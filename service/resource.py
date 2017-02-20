@@ -59,7 +59,8 @@ class ResLoader(object):
             pass
 
         r = requests.get('http://game.havenandhearth.com/hres/' + resname + '.res')
-        # TODO: Check `status_code`
+        if r.status_code != requests.codes.ok:
+            raise ResException('Unable to fetch resource')
         res = Resource(resname, resver, r.content)
         try:
             os.makedirs(resname[:resname.rfind('/') + 1])
