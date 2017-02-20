@@ -160,11 +160,11 @@ app.controller('LoginCtrl', function($scope, mafenSession) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
-  $scope.mafenSession.reset();
 
   $scope.user = {};
 
   $scope.login = function() {
+    $scope.mafenSession.reset();
     $scope.mafenSession.connect('ws://127.0.0.1:8000');
     $scope.mafenSession.send({
       action: 'connect',
