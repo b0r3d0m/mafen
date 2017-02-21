@@ -12,6 +12,7 @@ require('angular-tablesort');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
+var v = require('voca');
 
 var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS'])
 .service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
@@ -118,7 +119,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       if (item.id === id) {
         var meter = that.meters[id];
         if (meter !== undefined) {
-          progress = meter + '%';
+          var minsLeft = item.info.time * (100 - meter) / 100;
+          progress = v.sprintf(
+            '%d%% (~%s left)',
+            meter,
+            $rootScope.minutesToHoursMinutes(minsLeft)
+          );
         }
         break;
       }
@@ -165,6 +171,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 .run(function($rootScope, $location, mafenSession) {
   'ngInject';
 
+  $rootScope.minutesToHoursMinutes = function(totalMins) {
+    var hours = Math.floor(totalMins / 60);
+    var minutes = totalMins % 60;
+    return hours + ':' + parseInt(minutes, 10);
+  };
+
   $rootScope.logout = function() {
     mafenSession.close();
     mafenSession.loggedIn = false;
@@ -203,12 +215,6 @@ app.controller('MainCtrl', function($scope, mafenSession) {
         id: id
       }
     });
-  };
-
-  $scope.minutesToHoursMinutes = function(totalMins) {
-    var hours = Math.floor(totalMins / 60);
-    var minutes = totalMins % 60;
-    return hours + ':' + parseInt(minutes, 10);
   };
 });
 
