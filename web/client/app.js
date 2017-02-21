@@ -181,7 +181,7 @@ app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
 
   $scope.login = function() {
     $scope.mafenSession.reset();
-    $scope.mafenSession.connect('ws://127.0.0.1:8000');
+    $scope.mafenSession.connect('ws://mafen.club:8000');
     $scope.loginPromise = $scope.mafenSession.login($scope.user.username, $scope.user.password);
     $scope.loginPromise.then(function() {
       // Success callback
