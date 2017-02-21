@@ -6,8 +6,8 @@
   <div cg-busy="loginPromise">
     <form class="form-signin" ng-submit="login()">
       <h2>Please sign in</h2>
-      <input type="text" class="form-control" placeholder="Username" ng-model="user.username" />
-      <input type="password" class="form-control" placeholder="Password" ng-model="user.password" /><br/>
+      <input type="text" class="form-control" placeholder="Username" ng-model="user.username" required />
+      <input type="password" class="form-control" placeholder="Password" ng-model="user.password" required /><br/>
       <button type="submit" class="btn btn-primary">Sign in</button>
     </form>
   </div>
