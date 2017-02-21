@@ -38,3 +38,5 @@ For example, you can check your character's inventory and study any items you wa
 Copyright © 2017 b0r3d0m <b0r3d0mness@gmail.com>
 
 Distributed under the [MIT License](LICENSE.txt).
+
+[Background image](web/client/bg.jpg) was made by [ragxar](http://havenandhearth.ru/viewtopic.php?f=67&t=2490#p23479).
