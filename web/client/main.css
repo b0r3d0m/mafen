@@ -2,6 +2,11 @@ body {
   padding-top: 10px;
 }
 
+.navbar-brand img {
+  max-width:36px;
+  margin-top: -7px;
+}
+
 /* ===================== */
 /* Sticky footer styles from Bootstrap example */
 /* https://getbootstrap.com/examples/sticky-footer/sticky-footer.css */
