@@ -243,6 +243,7 @@ app.controller('MainCtrl', function($scope, mafenSession) {
         msg: $scope.inputMsgs[chatId]
       }
     });
+    $scope.inputMsgs[chatId] = '';
   };
 });
 
