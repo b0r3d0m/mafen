@@ -6,6 +6,7 @@ require('bootstrap/dist/css/bootstrap.min.css');
 
 require('angular');
 require('@cgross/angular-busy/dist/angular-busy.min.js');
+require('angularjs-scroll-glue/src/scrollglue.js');
 require('angular-css');
 require('angular-route');
 require('angular-tablesort');
@@ -14,7 +15,7 @@ require('alertify.js/dist/js/ngAlertify.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 var v = require('voca');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS'])
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives'])
 .service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
   'ngInject';
 
@@ -27,6 +28,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     that.items = [];
     that.meters = {};
     that.attrs = {};
+    that.chats = [];
+    that.msgs = {};
   };
 
   var onmessage = function(message) {
@@ -58,6 +61,19 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       that.attrs = msg.attrs;
     } else if (msg.action === 'meter') {
       that.meters[msg.id] = msg.meter;
+    } else if (msg.action === 'mchat') {
+      that.chats.push({
+        id: msg.id,
+        name: msg.name
+      });
+    } else if (msg.action === 'msg') {
+      if (that.msgs[msg.chat] === undefined) {
+        that.msgs[msg.chat] = [];
+      }
+      that.msgs[msg.chat].push({
+        from: msg.from,
+        text: msg.text
+      });
     } else {
       // TODO
     }
@@ -208,11 +224,23 @@ app.controller('MainCtrl', function($scope, mafenSession) {
 
   $scope.mafenSession = mafenSession;
 
+  $scope.inputMsgs = {};
+
   $scope.transferItem = function(id) {
     $scope.mafenSession.send({
       action: 'transfer',
       data: {
         id: id
+      }
+    });
+  };
+
+  $scope.sendMsg = function(chatId) {
+    $scope.mafenSession.send({
+      action: 'msg',
+      data: {
+        id: chatId,
+        msg: $scope.inputMsgs[chatId]
       }
     });
   };

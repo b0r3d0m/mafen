@@ -37,6 +37,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_play_message(data)
         elif action == 'transfer':
             self.handle_transfer_message(data)
+        elif action == 'msg':
+            self.handle_msg_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -74,12 +76,14 @@ class WSServer(WebSocket, SimpleLogger):
             self.chr_wdg_id = -1
             self.inv_wdg_id = -1
             self.study_wdg_id = -1
+            self.buddy_wdg_id = -1
             self.rseq = 0
             self.wseq = 0
             self.rmsgs = []
             self.rmsgs_lock = threading.Lock()
             self.items = []
             self.items_lock = threading.Lock()
+            self.buddies = {}
 
             self.gc = GameClient(
                 WSServer.config.game_host,
@@ -147,6 +151,21 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint16(item_id)
         msg.add_string('transfer')
         msg.add_list([coords])
+        self.queue_rmsg(msg)
+
+    def handle_msg_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        chat_id = data['id']
+        chat_msg = data['msg']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(chat_id)
+        msg.add_string('msg')
+        msg.add_list([chat_msg])
         self.queue_rmsg(msg)
 
     def queue_rmsg(self, rmsg):
@@ -297,6 +316,17 @@ class WSServer(WebSocket, SimpleLogger):
                 item = Item(wdg_id, coords, resid, study=(wdg == 'study'))
                 item.sent = False
                 self.items.append(item)
+        elif wdg_type == 'buddy':
+            self.buddy_wdg_id = wdg_id
+        elif wdg_type == 'mchat':
+            chat_name = wdg_cargs[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'mchat',
+                    'id': wdg_id,
+                    'name': chat_name
+                }))
+            )
         else:
             pass
 
@@ -314,6 +344,11 @@ class WSServer(WebSocket, SimpleLogger):
                         'name': char_name
                     }))
                 )
+            elif wdg_id == self.buddy_wdg_id:
+                buddy_id = wdg_args[0]
+                buddy_name = wdg_args[1]
+                # online, group, seen etc
+                self.buddies[buddy_id] = buddy_name
         elif wdg_msg == 'tt':
             with self.items_lock:
                 for item in self.items:
@@ -328,8 +363,18 @@ class WSServer(WebSocket, SimpleLogger):
                     'meter': meter
                 }))
             )
-        elif wdg_msg == 'err':
-            pass
+        elif wdg_msg == 'msg':
+            sender_id = wdg_args[0]
+            sender_msg = wdg_args[1]
+
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'msg',
+                    'chat': wdg_id,
+                    'from': 'You' if sender_id == 0 else self.buddies.get(sender_id, '???'),
+                    'text': sender_msg
+                }))
+            )
         else:
             pass
 
