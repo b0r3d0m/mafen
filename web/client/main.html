@@ -49,7 +49,10 @@
   </tbody>
 </table>
 <uib-tabset>
-  <uib-tab index="$index + 1" ng-repeat="chat in mafenSession.chats" heading="{{chat.name}}">
+  <uib-tab ng-repeat="chat in mafenSession.chats" select="onChatSelect(chat.id)">
+    <uib-tab-heading>
+      <i ng-if="chat.unread">(!)</i> {{chat.name}}
+    </uib-tab-heading>
     <div class="chat-container" scroll-glue>
       <div class="well well-sm" ng-repeat="msg in mafenSession.msgs[chat.id]">
         {{msg.from}}: {{msg.text}}

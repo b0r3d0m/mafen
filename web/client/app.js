@@ -12,6 +12,7 @@ require('angular-route');
 require('angular-tablesort');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
+require('ion-sound/js/ion.sound.min.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 var v = require('voca');
 
@@ -30,6 +31,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     that.attrs = {};
     that.chats = [];
     that.msgs = {};
+    that.callbacks = {};
   };
 
   var onmessage = function(message) {
@@ -71,6 +73,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     } else {
       // TODO
     }
+
+    var cb = that.callbacks[msg.action];
+    if (cb) {
+      cb(msg);
+    }
+
     $rootScope.$apply();
   };
 
@@ -141,6 +149,10 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     }
     return progress;
   };
+
+  this.on = function(msgType, callback) {
+    that.callbacks[msgType] = callback;
+  };
 })
 .config(function($routeProvider, $locationProvider) {
   'ngInject';
@@ -177,6 +189,13 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     .otherwise({
       redirectTo: '/'
     });
+
+  ion.sound({
+    sounds: [{
+      name: 'button_tiny'
+    }],
+    path: 'sounds/'
+  });
 })
 .run(function($rootScope, $location, mafenSession) {
   'ngInject';
@@ -185,6 +204,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     var hours = Math.floor(totalMins / 60);
     var minutes = totalMins % 60;
     return hours + ':' + parseInt(minutes, 10);
+  };
+
+  $rootScope.findFirstWithProp = function(arr, prop, val) {
+    return arr.filter(function(obj) {
+      return obj[prop] === val;
+    })[0];
   };
 
   $rootScope.logout = function() {
@@ -218,7 +243,7 @@ app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) 
   };
 });
 
-app.controller('MainCtrl', function($scope, mafenSession) {
+app.controller('MainCtrl', function($rootScope, $scope, mafenSession) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -243,6 +268,28 @@ app.controller('MainCtrl', function($scope, mafenSession) {
       }
     });
     $scope.inputMsgs[chatId] = '';
+  };
+
+  $scope.getChat = function(chatId) {
+    return $rootScope.findFirstWithProp($scope.mafenSession.chats, 'id', chatId);
+  };
+
+  $scope.mafenSession.on('msg', function(msg) {
+    if (msg.from !== 'You') {
+      ion.sound.play('button_tiny');
+    }
+
+    var activeChat = $scope.getChat($scope.activeChatId);
+    if (activeChat.id !== msg.chat) {
+      var chat = $scope.getChat(msg.chat);
+      chat.unread = true;
+    }
+  });
+
+  $scope.onChatSelect = function(chatId) {
+    $scope.activeChatId = chatId;
+    var chat = $scope.getChat(chatId);
+    chat.unread = false;
   };
 });
 
