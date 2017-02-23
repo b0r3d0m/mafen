@@ -16,7 +16,7 @@ var jsSHA256 = require('js-sha256/build/sha256.min.js');
 var v = require('voca');
 
 var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives'])
-.service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
+.service('mafenSession', function($rootScope, $timeout, $q) {
   'ngInject';
 
   var that = this;
@@ -37,12 +37,6 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 
     if (msg.action === 'connect') {
       if (msg.success) {
-        $uibModal.open({
-          ariaLabelledBy: 'charlist-modal-title',
-          ariaDescribedBy: 'charlist-modal-body',
-          templateUrl: 'charlist.html',
-          controller: 'CharacterListModalCtrl'
-        });
         that.loggedIn = true;
         that.loginDeferred.resolve();
       } else {
@@ -200,7 +194,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   };
 });
 
-app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
+app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -212,7 +206,12 @@ app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
     $scope.mafenSession.connect('ws://mafen.club:8000');
     $scope.loginPromise = $scope.mafenSession.login($scope.user.username, $scope.user.password);
     $scope.loginPromise.then(function() {
-      // Success callback
+      $uibModal.open({
+        ariaLabelledBy: 'charlist-modal-title',
+        ariaDescribedBy: 'charlist-modal-body',
+        templateUrl: 'charlist.html',
+        controller: 'CharacterListModalCtrl'
+      });
     }, function() {
       alertify.error('Authentication failed');
     });
