@@ -6,16 +6,18 @@ require('bootstrap/dist/css/bootstrap.min.css');
 
 require('angular');
 require('@cgross/angular-busy/dist/angular-busy.min.js');
+require('angularjs-scroll-glue/src/scrollglue.js');
 require('angular-css');
 require('angular-route');
 require('angular-tablesort');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
+require('ion-sound/js/ion.sound.min.js');
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
 var v = require('voca');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS'])
-.service('mafenSession', function($rootScope, $uibModal, $timeout, $q) {
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives'])
+.service('mafenSession', function($rootScope, $timeout, $q) {
   'ngInject';
 
   var that = this;
@@ -27,6 +29,9 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     that.items = [];
     that.meters = {};
     that.attrs = {};
+    that.chats = [];
+    that.msgs = {};
+    that.callbacks = {};
   };
 
   var onmessage = function(message) {
@@ -34,12 +39,6 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 
     if (msg.action === 'connect') {
       if (msg.success) {
-        $uibModal.open({
-          ariaLabelledBy: 'charlist-modal-title',
-          ariaDescribedBy: 'charlist-modal-body',
-          templateUrl: 'charlist.html',
-          controller: 'CharacterListModalCtrl'
-        });
         that.loggedIn = true;
         that.loginDeferred.resolve();
       } else {
@@ -58,9 +57,25 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       that.attrs = msg.attrs;
     } else if (msg.action === 'meter') {
       that.meters[msg.id] = msg.meter;
+    } else if (msg.action === 'mchat') {
+      that.chats.push({
+        id: msg.id,
+        name: msg.name
+      });
+    } else if (msg.action === 'msg') {
+      (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
+        from: msg.from,
+        text: msg.text
+      });
     } else {
       // TODO
     }
+
+    var cb = that.callbacks[msg.action];
+    if (cb) {
+      cb(msg);
+    }
+
     $rootScope.$apply();
   };
 
@@ -131,6 +146,10 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     }
     return progress;
   };
+
+  this.on = function(msgType, callback) {
+    that.callbacks[msgType] = callback;
+  };
 })
 .config(function($routeProvider, $locationProvider) {
   'ngInject';
@@ -167,6 +186,13 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     .otherwise({
       redirectTo: '/'
     });
+
+  ion.sound({
+    sounds: [{
+      name: 'button_tiny'
+    }],
+    path: 'sounds/'
+  });
 })
 .run(function($rootScope, $location, mafenSession) {
   'ngInject';
@@ -177,6 +203,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     return hours + ':' + parseInt(minutes, 10);
   };
 
+  $rootScope.findFirstWithProp = function(arr, prop, val) {
+    return arr.filter(function(obj) {
+      return obj[prop] === val;
+    })[0];
+  };
+
   $rootScope.logout = function() {
     mafenSession.close();
     mafenSession.loggedIn = false;
@@ -184,7 +216,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   };
 });
 
-app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
+app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -196,17 +228,24 @@ app.controller('LoginCtrl', function($scope, mafenSession, alertify) {
     $scope.mafenSession.connect('ws://mafen.club:8000');
     $scope.loginPromise = $scope.mafenSession.login($scope.user.username, $scope.user.password);
     $scope.loginPromise.then(function() {
-      // Success callback
+      $uibModal.open({
+        ariaLabelledBy: 'charlist-modal-title',
+        ariaDescribedBy: 'charlist-modal-body',
+        templateUrl: 'charlist.html',
+        controller: 'CharacterListModalCtrl'
+      });
     }, function() {
       alertify.error('Authentication failed');
     });
   };
 });
 
-app.controller('MainCtrl', function($scope, mafenSession) {
+app.controller('MainCtrl', function($rootScope, $scope, mafenSession) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
+
+  $scope.inputMsgs = {};
 
   $scope.transferItem = function(id) {
     $scope.mafenSession.send({
@@ -215,6 +254,39 @@ app.controller('MainCtrl', function($scope, mafenSession) {
         id: id
       }
     });
+  };
+
+  $scope.sendMsg = function(chatId) {
+    $scope.mafenSession.send({
+      action: 'msg',
+      data: {
+        id: chatId,
+        msg: $scope.inputMsgs[chatId]
+      }
+    });
+    $scope.inputMsgs[chatId] = '';
+  };
+
+  $scope.getChat = function(chatId) {
+    return $rootScope.findFirstWithProp($scope.mafenSession.chats, 'id', chatId);
+  };
+
+  $scope.mafenSession.on('msg', function(msg) {
+    if (msg.from !== 'You') {
+      ion.sound.play('button_tiny');
+    }
+
+    var activeChat = $scope.getChat($scope.activeChatId);
+    if (activeChat.id !== msg.chat) {
+      var chat = $scope.getChat(msg.chat);
+      chat.unread = true;
+    }
+  });
+
+  $scope.onChatSelect = function(chatId) {
+    $scope.activeChatId = chatId;
+    var chat = $scope.getChat(chatId);
+    chat.unread = false;
   };
 });
 

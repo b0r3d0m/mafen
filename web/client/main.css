@@ -28,3 +28,25 @@ body {
 }
 
 /* ===================== */
+
+/* From http://stackoverflow.com/questions/15316559/how-to-give-a-border-to-bootstrap-tab-contents */
+
+.tab-pane {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-radius: 0px 0px 5px 5px;
+  padding: 10px;
+}
+
+.nav-tabs {
+  margin-bottom: 0;
+}
+
+/* ===================== */
+
+.chat-container {
+  height: 300px;
+  display: block;
+  overflow-y: scroll;
+}
