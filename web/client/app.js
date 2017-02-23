@@ -63,10 +63,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
         name: msg.name
       });
     } else if (msg.action === 'msg') {
-      if (that.msgs[msg.chat] === undefined) {
-        that.msgs[msg.chat] = [];
-      }
-      that.msgs[msg.chat].push({
+      (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
         from: msg.from,
         text: msg.text
       });
