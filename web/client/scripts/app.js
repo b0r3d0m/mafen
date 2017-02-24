@@ -151,7 +151,12 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     that.callbacks[msgType] = callback;
   };
 })
-.config(function($routeProvider, $locationProvider) {
+.constant('PATHS', {
+  views: '/views/',
+  styles: '/styles/',
+  assets: '/assets/'
+})
+.config(function($routeProvider, $locationProvider, PATHS) {
   'ngInject';
 
   var checkLoggedIn = function($q, $location, mafenSession) {
@@ -171,25 +176,37 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 
   $routeProvider
     .when('/study', {
-      templateUrl: 'study.html',
+      templateUrl: PATHS.views + 'study.html',
       controller: 'StudyCtrl',
-      css: ['header.css', 'footer.css', 'study.css'],
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'study.css'
+      ],
       resolve: {
         loggedin: checkLoggedIn
       }
     })
     .when('/chats', {
-      templateUrl: 'chats.html',
+      templateUrl: PATHS.views + 'chats.html',
       controller: 'ChatsCtrl',
-      css: ['header.css', 'footer.css', 'chats.css'],
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'chats.css'
+      ],
       resolve: {
         loggedin: checkLoggedIn
       }
     })
     .when('/login', {
-      templateUrl: 'login.html',
+      templateUrl: PATHS.views + 'login.html',
       controller: 'LoginCtrl',
-      css: ['login.css', 'ribbons.css', 'hue.css']
+      css: [
+        PATHS.styles + 'login.css',
+        PATHS.styles + 'ribbons.css',
+        PATHS.styles + 'hue.css'
+      ]
     })
     .otherwise({
       redirectTo: '/study'
@@ -199,7 +216,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     sounds: [{
       name: 'button_tiny'
     }],
-    path: 'sounds/'
+    path: PATHS.assets + 'sounds/'
   });
 })
 .run(function($rootScope, $location, mafenSession) {
@@ -228,7 +245,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   };
 });
 
-app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) {
+app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify, PATHS) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -237,13 +254,13 @@ app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) 
 
   $scope.login = function() {
     $scope.mafenSession.reset();
-    $scope.mafenSession.connect('ws://mafen.club:8000');
+    $scope.mafenSession.connect('ws://127.0.0.1:8000');
     $scope.loginPromise = $scope.mafenSession.login($scope.user.username, $scope.user.password);
     $scope.loginPromise.then(function() {
       $uibModal.open({
         ariaLabelledBy: 'charlist-modal-title',
         ariaDescribedBy: 'charlist-modal-body',
-        templateUrl: 'charlist.html',
+        templateUrl: PATHS.views + 'charlist.html',
         controller: 'CharacterListModalCtrl'
       });
     }, function() {

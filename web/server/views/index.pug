@@ -5,6 +5,6 @@ html(ng-app="app")
     title Mafen
   body
     .container-fluid
-      ng-include(src="'/header.html'", ng-if="!isCurrentPage('/login')")
+      ng-include(src="'/views/header.html'", ng-if="!isCurrentPage('/login')")
       ng-view
-      ng-include(src="'/footer.html'", ng-if="!isCurrentPage('/login')")
+      ng-include(src="'/views/footer.html'", ng-if="!isCurrentPage('/login')")
