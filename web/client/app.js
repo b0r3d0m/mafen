@@ -170,10 +170,18 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   };
 
   $routeProvider
-    .when('/', {
-      templateUrl: 'main.html',
-      controller: 'MainCtrl',
-      css: 'main.css',
+    .when('/study', {
+      templateUrl: 'study.html',
+      controller: 'StudyCtrl',
+      css: ['header.css', 'footer.css', 'study.css'],
+      resolve: {
+        loggedin: checkLoggedIn
+      }
+    })
+    .when('/chats', {
+      templateUrl: 'chats.html',
+      controller: 'ChatsCtrl',
+      css: ['header.css', 'footer.css', 'chats.css'],
       resolve: {
         loggedin: checkLoggedIn
       }
@@ -184,7 +192,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: ['login.css', 'ribbons.css', 'hue.css']
     })
     .otherwise({
-      redirectTo: '/'
+      redirectTo: '/study'
     });
 
   ion.sound({
@@ -207,6 +215,10 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     return arr.filter(function(obj) {
       return obj[prop] === val;
     })[0];
+  };
+
+  $rootScope.isCurrentPage = function(path) {
+    return path === $location.path();
   };
 
   $rootScope.logout = function() {
@@ -240,12 +252,10 @@ app.controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify) 
   };
 });
 
-app.controller('MainCtrl', function($rootScope, $scope, mafenSession) {
+app.controller('StudyCtrl', function($rootScope, $scope, mafenSession) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
-
-  $scope.inputMsgs = {};
 
   $scope.transferItem = function(id) {
     $scope.mafenSession.send({
@@ -255,6 +265,14 @@ app.controller('MainCtrl', function($rootScope, $scope, mafenSession) {
       }
     });
   };
+});
+
+app.controller('ChatsCtrl', function($rootScope, $scope, mafenSession) {
+  'ngInject';
+
+  $scope.mafenSession = mafenSession;
+
+  $scope.inputMsgs = {};
 
   $scope.sendMsg = function(chatId) {
     $scope.mafenSession.send({
