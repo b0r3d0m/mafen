@@ -23,6 +23,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   };
 
   var onmessage = function(message) {
+    console.log(message.data);
+
     var msg = JSON.parse(message.data);
 
     if (msg.action === 'connect') {
