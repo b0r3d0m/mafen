@@ -3,9 +3,13 @@
 ![logo](http://www.samsmartinc.com/assets/user/upload/images/muffin.png)
 
 **mafen** is a web-based application that helps u with various [Haven & Hearth](http://www.havenandhearth.com/portal/) tasks.
-For example, you can check your character's inventory and study any items you want. Note that you can do it from any device you have at the moment. No need to launch a full desktop H&H client at all!
+For example, you can check your character's inventory and study any items you want, or chat with other players via area / village / kingdom chats. Note that you can do it from any device you have at the moment. No need to launch a full desktop H&H client at all!
 
-![main page](http://i.imgur.com/BFGu2yB.png)
+![study](http://i.imgur.com/BFGu2yB.png)
+
+![nearby players list](http://i.imgur.com/NVkGb3a.png)
+
+![chats](http://i.imgur.com/sH3INJp.png)
 
 **(click me)**
 

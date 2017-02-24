@@ -18,7 +18,7 @@ app.use(express.static('client'));
 
 // Configure middlewares
 var favicon = require('serve-favicon');
-app.use(favicon('./client/favicon.ico'));
+app.use(favicon('./client/assets/icons/favicon.ico'));
 
 // Define routes
 app.get('/', function(req, res) {

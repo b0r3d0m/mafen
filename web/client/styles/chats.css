@@ -1,30 +1,8 @@
-body {
-  padding-top: 10px;
-}
-
-.navbar-brand img {
-  max-width:36px;
-  margin-top: -7px;
-}
-
-/* ===================== */
-/* Sticky footer styles from Bootstrap example */
-/* https://getbootstrap.com/examples/sticky-footer/sticky-footer.css */
+/* It seems that angularCSS doesn't remove styles applied from the previous routes,
+   so we have to remove background image from the /login page manually */
 
 html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 90px;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 95%; /* TODO: Think about more elegant way to do it */
-  height: 90px;
+  background: none;
 }
 
 /* ===================== */

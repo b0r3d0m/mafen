@@ -9,7 +9,7 @@ var ngAnnotate = require('browserify-ngannotate');
 
 function bundleScript(watch) {
   var b = browserify({
-    entries: ['./client/app.js'],
+    entries: ['./client/scripts/app.js'],
     debug: true,
     cache: {},
     packageCache: {}

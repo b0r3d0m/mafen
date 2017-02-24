@@ -8,6 +8,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 from authclient import AuthClient, AuthException
 from config import Config
 from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
+from gob import Gob
 from item import Item
 from messagebuf import MessageBuf
 from resource import ResLoader
@@ -84,6 +85,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.items = []
             self.items_lock = threading.Lock()
             self.buddies = {}
+            self.gobs = {}
+            self.gobs_lock = threading.Lock()
 
             self.gc = GameClient(
                 WSServer.config.game_host,
@@ -221,6 +224,20 @@ class WSServer(WebSocket, SimpleLogger):
                         )
                         item.sent = True
 
+                # TODO: Make copy
+                with self.gobs_lock:
+                    for gob_id, gob in self.gobs.iteritems():
+                        if gob.sent:
+                            continue
+                        if gob.is_player():
+                            self.sendMessage(
+                                unicode(json.dumps({
+                                    'action': 'player',
+                                    'id': gob.gob_id
+                                }))
+                            )
+                            self.gobs[gob_id].sent = True
+
                 time.sleep(0.3)
             elif gs == GameState.CLOSE:
                 return
@@ -327,6 +344,16 @@ class WSServer(WebSocket, SimpleLogger):
                     'name': chat_name
                 }))
             )
+        elif wdg_type == 'mapview':
+            pgob = -1
+            if len(wdg_cargs) > 2:
+                pgob = wdg_cargs[2]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'pgob',
+                    'id': pgob
+                }))
+            )
         else:
             pass
 
@@ -421,8 +448,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.rmsgs = [rmsg for rmsg in self.rmsgs if rmsg.seq > ack]
 
     def on_msg_objdata(self, msg):
-        # NOTE: We don't really need to handle these messages,
-        # we just want to get rid of them by sending the corresponding MSG_OBJACK messages
+        # NOTE: We don't really need to handle all of these messages,
+        # we just want to get rid of most of them by sending the corresponding MSG_OBJACK messages
         while not msg.eom():
             fl = msg.get_uint8()
             id = msg.get_uint32()
@@ -431,7 +458,14 @@ class WSServer(WebSocket, SimpleLogger):
             while True:
                 data_type = msg.get_uint8()
                 if data_type == ObjDataType.OD_REM:
-                    pass
+                    with self.gobs_lock:
+                        del self.gobs[id]
+                    self.sendMessage(
+                        unicode(json.dumps({
+                            'action': 'gobrem',
+                            'id': id
+                        }))
+                    )
                 elif data_type == ObjDataType.OD_MOVE:
                     msg.get_int32()
                     msg.get_int32()
@@ -461,6 +495,10 @@ class WSServer(WebSocket, SimpleLogger):
                     text = msg.get_string()
                 elif data_type == ObjDataType.OD_COMPOSE:
                     resid = msg.get_uint16()
+                    with self.gobs_lock:
+                        gob = self.gobs.get(id, Gob(id))
+                        gob.compose(resid)
+                        self.gobs[id] = gob
                 elif data_type == ObjDataType.OD_CMPPOSE:
                     pfl = msg.get_uint8()
                     seq = msg.get_uint8()
@@ -559,6 +597,17 @@ class WSServer(WebSocket, SimpleLogger):
                     if len(name) > 0:
                         group = msg.get_uint8()
                         btype = msg.get_uint8()
+                    with self.gobs_lock:
+                        gob = self.gobs.get(id, Gob(id))
+                        gob.buddy(name)
+                        self.gobs[id] = gob
+                    self.sendMessage(
+                        unicode(json.dumps({
+                            'action': 'buddy',
+                            'id': id,
+                            'name': name
+                        }))
+                    )
                 elif data_type == ObjDataType.OD_ICON:
                     resid = msg.get_uint16()
                     if resid == 65535:
