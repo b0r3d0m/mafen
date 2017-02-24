@@ -7,6 +7,8 @@ For example, you can check your character's inventory and study any items you wa
 
 ![study](http://i.imgur.com/BFGu2yB.png)
 
+![nearby players list](http://i.imgur.com/NVkGb3a.png)
+
 ![chats](http://i.imgur.com/sH3INJp.png)
 
 **(click me)**
