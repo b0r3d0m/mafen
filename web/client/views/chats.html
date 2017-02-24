@@ -1,3 +1,11 @@
+<div class="panel panel-primary">
+  <div class="panel-heading">Players in area</div>
+  <div class="panel-body">
+    <ul class="list-group">
+      <li class="list-group-item" ng-repeat="playerId in mafenSession.players">{{mafenSession.getPlayerName(playerId)}}</li>
+    </ul>
+  </div>
+</div>
 <uib-tabset>
   <uib-tab ng-repeat="chat in mafenSession.chats" select="onChatSelect(chat.id)">
     <uib-tab-heading>

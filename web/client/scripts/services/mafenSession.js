@@ -17,6 +17,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.attrs = {};
     that.chats = [];
     that.msgs = {};
+    that.players = [];
+    that.buddies = {};
     that.callbacks = {};
   };
 
@@ -53,6 +55,17 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
         from: msg.from,
         text: msg.text
       });
+    } else if (msg.action === 'player') {
+      that.players.push(msg.id);
+    } else if (msg.action === 'buddy') {
+      that.buddies[msg.id] = msg.name;
+    } else if (msg.action === 'pgob') {
+      that.pgob = msg.id;
+    } else if (msg.action === 'gobrem') {
+      that.players = that.players.filter(function(playerId) {
+        return playerId !== msg.id;
+      });
+      delete that.players[msg.id];
     } else {
       // TODO
     }
@@ -131,6 +144,13 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       }
     }
     return progress;
+  };
+
+  this.getPlayerName = function(playerId) {
+    if (playerId === that.pgob) {
+      return 'You';
+    }
+    return that.buddies[playerId] || '???';
   };
 
   this.on = function(msgType, callback) {
