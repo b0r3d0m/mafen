@@ -3,13 +3,15 @@
 ![logo](http://www.samsmartinc.com/assets/user/upload/images/muffin.png)
 
 **mafen** is a web-based application that helps u with various [Haven & Hearth](http://www.havenandhearth.com/portal/) tasks.
-For example, you can check your character's inventory and study any items you want, or chat with other players via area / village / kingdom chats. Note that you can do it from any device you have at the moment. No need to launch a full desktop H&H client at all!
+For example, you can check your character's inventory and study any items you want, view your character's attributes (incl. hidden ones), or chat with other players via area / village / kingdom chats. Note that you can do it from any device you have at the moment. No need to launch a full desktop H&H client at all!
 
 ![study](http://i.imgur.com/BFGu2yB.png)
 
 ![nearby players list](http://i.imgur.com/NVkGb3a.png)
 
 ![chats](http://i.imgur.com/sH3INJp.png)
+
+![attrs](http://i.imgur.com/AJ7wUbJ.png)
 
 **(click me)**
 
@@ -31,6 +33,14 @@ For example, you can check your character's inventory and study any items you wa
 * vim server/config.json (optional)
 * gulp bundle-js
 * node server/index.js & # consider about using [forever](https://github.com/foreverjs/forever) though
+
+**NOTE** that if you want to route your browser's requests to your own instance of mafen service, you have to change a hard coded WebSocket URL in the [LoginCtrl.js](web/client/scripts/controllers/LoginCtrl.js) from this one
+
+'ws://mafen.club:8000'
+
+to this one
+
+'ws://localhost:8000'
 
 ## How can I help?
 * ![star](http://github-svg-buttons.herokuapp.com/star.svg?user=b0r3d0m&repo=mafen) this project!
