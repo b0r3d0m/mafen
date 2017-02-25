@@ -63,6 +63,18 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
         loggedin: checkLoggedIn
       }
     })
+    .when('/attrs', {
+      templateUrl: PATHS.views + 'attrs.html',
+      controller: 'AttrsCtrl',
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'attrs.css'
+      ],
+      resolve: {
+        loggedin: checkLoggedIn
+      }
+    })
     .when('/login', {
       templateUrl: PATHS.views + 'login.html',
       controller: 'LoginCtrl',
@@ -109,6 +121,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   };
 });
 
+require('./controllers/AttrsCtrl.js');
 require('./controllers/CharListCtrl.js');
 require('./controllers/ChatsCtrl.js');
 require('./controllers/LoginCtrl.js');
