@@ -34,6 +34,14 @@ For example, you can check your character's inventory and study any items you wa
 * gulp bundle-js
 * node server/index.js & # consider about using [forever](https://github.com/foreverjs/forever) though
 
+**NOTE** that if you want to route your browser's requests to your own instance of mafen service, you have to change a hard coded WebSocket URL in the [LoginCtrl.js](web/client/scripts/controllers/LoginCtrl.js) from this one
+
+'ws://mafen.club:8000'
+
+to this one
+
+'ws://localhost:8000'
+
 ## How can I help?
 * ![star](http://github-svg-buttons.herokuapp.com/star.svg?user=b0r3d0m&repo=mafen) this project!
 * ![fork](http://github-svg-buttons.herokuapp.com/fork.svg?user=b0r3d0m&repo=mafen) and create pull requests with any changes you want
