@@ -53,10 +53,6 @@ class GameState(object):
     PLAY = 1
     CLOSE = 2
 
-class ClientState(object):
-    CONN = 0
-    CLOSE = 1
-
 class GameException(Exception):
     pass
 

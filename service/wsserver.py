@@ -7,7 +7,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 from authclient import AuthClient, AuthException
 from config import Config
-from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState, ClientState
+from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
 from gob import Gob
 from item import Item
 from messagebuf import MessageBuf
@@ -38,16 +38,12 @@ class WSServer(WebSocket, SimpleLogger):
     @staticmethod
     def get_client_status(key):
         with WSServer.clients_lock:
-            res = WSServer.clients.get(key)
-            return res
+            return WSServer.clients.get(key)
 
     @staticmethod
     def remove_client(key):
         with WSServer.clients_lock:
             WSServer.clients.pop(key, None)
-
-    def get_address_key(self):
-        return '{}:{}'.format(*self.address)
 
     def handleMessage(self):
         msg = json.loads(self.data)
@@ -69,16 +65,13 @@ class WSServer(WebSocket, SimpleLogger):
         self.info('{} connected'.format(self.address))
         self.gs_lock = threading.Lock()
         self.set_gs(GameState.CONN)
-        key = self.get_address_key()
-        WSServer.set_client_status(key, ClientState.CONN)
+        WSServer.set_client_status(self.address, True)
 
     def handleClose(self):
-        key = self.get_address_key()
-        client_status = WSServer.get_client_status(key)
-        if client_status is None or client_status == ClientState.CLOSE:
+        client_status = WSServer.get_client_status(self.address)
+        if client_status is None:
             return
-        WSServer.set_client_status(key, ClientState.CLOSE)
-        # or mb WSServer.remove_client(key)
+        WSServer.remove_client(self.address)
         self.info('{} closed'.format(self.address))
         self.set_gs(GameState.CLOSE)
 
