@@ -290,6 +290,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_rmsg_wdgmsg(rmsg)
                 elif rel_type == RelMessageType.RMSG_DSTWDG:
                     self.on_rmsg_dstwdg(rmsg)
+                elif rel_type == RelMessageType.RMSG_GLOBLOB:
+                    self.on_rmsg_globlob(rmsg)
                 elif rel_type == RelMessageType.RMSG_RESID:
                     self.on_rmsg_resid(rmsg)
                 elif rel_type == RelMessageType.RMSG_CATTR:
@@ -402,6 +404,22 @@ class WSServer(WebSocket, SimpleLogger):
                     'text': sender_msg
                 }))
             )
+        elif wdg_msg == 'exp':
+            exp = wdg_args[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'exp',
+                    'exp': exp
+                }))
+            )
+        elif wdg_msg == 'enc':
+            enc = wdg_args[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'enc',
+                    'enc': enc
+                }))
+            )
         else:
             pass
 
@@ -418,6 +436,25 @@ class WSServer(WebSocket, SimpleLogger):
                     )
                     self.items.remove(item)
                     break
+
+    def on_rmsg_globlob(self, msg):
+        inc = msg.get_uint8() != 0
+        while not msg.eom():
+            t = msg.get_string()
+            a = msg.get_list()
+            if t == 'tm':
+                tm = a[0]
+                epoch = time.time() * 1000
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'time',
+                        'time': tm,
+                        'epoch': epoch,
+                        'inc': inc
+                    }))
+                )
+            else:
+                pass
 
     def on_rmsg_resid(self, msg):
         resid = msg.get_uint16()

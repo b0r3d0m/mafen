@@ -95,7 +95,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     path: PATHS.assets + 'sounds/'
   });
 })
-.run(function($rootScope, $location, mafenSession) {
+.run(function($rootScope, $location, $interval, mafenSession) {
   'ngInject';
 
   $rootScope.minutesToHoursMinutes = function(totalMins) {
@@ -119,6 +119,11 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     mafenSession.loggedIn = false;
     $location.url('/login');
   };
+
+  $interval(function() {
+    $rootScope.serverTime = mafenSession.getServerTime();
+    $rootScope.isDewyLadysMantleTime = mafenSession.isDewyLadysMantleTime();
+  }, 1000);
 });
 
 require('./controllers/AttrsCtrl.js');

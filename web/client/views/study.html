@@ -1,35 +1,99 @@
-<h3>Attention</h3>
-<div>{{mafenSession.getTotalMW()}} / {{mafenSession.attrs.int.comp}}</div>
-<h3>Items</h3>
-<table class="table table-striped table-bordered" border="1" ts-wrapper>
-  <thead>
-    <tr>
-      <th>Image</th>
-      <th ts-criteria="info.tooltip">Tooltip</th>
-      <th ts-criteria="info.q">Quality</th>
-      <th ts-criteria="info.exp">LP</th>
-      <th ts-criteria="info.mw">Weight</th>
-      <th ts-criteria="info.enc">Exp</th>
-      <th ts-criteria="info.time">Time</th>
-      <th>Progress</th> <!--Add sorting to this column-->
-      <th></th>
-    <tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="item in mafenSession.items" ts-repeat>
-      <td><img ng-src="{{item.info.image}}"></td>
-      <td>{{item.info.tooltip}}</td>
-      <td>{{item.info.q | number: 2}}</td>
-      <td>{{item.info.exp}}</td>
-      <td>{{item.info.mw}}</td>
-      <td>{{item.info.enc}}</td>
-      <td>{{item.info.curio ? minutesToHoursMinutes(item.info.time) : ''}}</td>
-      <td>{{mafenSession.getProgress(item.id)}}</td>
-      <td>
-        <button ng-class="{btn: true, 'btn-primary': !item.study, 'btn-danger': item.study}" ng-click="transferItem(item.id)" ng-disabled="!item.info.curio">
-          {{item.study ? 'Unstudy' : 'Study'}}
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="row">
+  <div class="col-sm-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">Study Report</div>
+      <table class="table">
+        <thead>
+          <th>
+            Param
+          </th>
+          <th>
+            Value
+          </th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Attention</td>
+            <td>{{mafenSession.getTotalMW()}} / {{mafenSession.attrs.int.comp}}</td>
+          </tr>
+          <tr>
+            <td>Experience cost</td>
+            <td>{{mafenSession.getTotalExpCost()}}</td>
+          </tr>
+          <tr>
+            <td>LP / hour</td>
+            <td>{{mafenSession.getTotalLPHour() | number: 2}}</td>
+          </tr>
+          <tr>
+            <td>Learning points</td>
+            <td>{{mafenSession.getTotalLP()}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="panel panel-primary">
+      <div class="panel-heading">General</div>
+      <table class="table">
+        <thead>
+          <th>
+            Param
+          </th>
+          <th>
+            Value
+          </th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Experience points</td>
+            <td>{{mafenSession.enc}}</td>
+          </tr>
+          <tr>
+            <td>Learning points</td>
+            <td>{{mafenSession.exp}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">Items</div>
+      <table class="table table-striped table-bordered" border="1" ts-wrapper>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th ts-criteria="info.tooltip">Tooltip</th>
+            <th ts-criteria="info.q">Quality</th>
+            <th ts-criteria="info.exp">LP</th>
+            <th ts-criteria="info.mw">Weight</th>
+            <th ts-criteria="info.enc">Exp</th>
+            <th ts-criteria="info.time">Time</th>
+            <th>Progress</th> <!--Add sorting to this column-->
+            <th></th>
+          <tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="item in mafenSession.items" ts-repeat>
+            <td><img ng-src="{{item.info.image}}"></td>
+            <td>{{item.info.tooltip}}</td>
+            <td>{{item.info.q | number: 2}}</td>
+            <td>{{item.info.exp}}</td>
+            <td>{{item.info.mw}}</td>
+            <td>{{item.info.enc}}</td>
+            <td>{{item.info.curio ? minutesToHoursMinutes(item.info.time) : ''}}</td>
+            <td>{{mafenSession.getProgress(item.id)}}</td>
+            <td>
+              <button ng-class="{btn: true, 'btn-primary': !item.study, 'btn-danger': item.study}" ng-click="transferItem(item.id)" ng-disabled="!item.info.curio">
+                {{item.study ? 'Unstudy' : 'Study'}}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

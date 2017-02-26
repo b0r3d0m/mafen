@@ -20,6 +20,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.players = [];
     that.buddies = {};
     that.callbacks = {};
+    that.lastrep = 0;
   };
 
   var onmessage = function(message) {
@@ -68,6 +69,16 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
         return playerId !== msg.id;
       });
       delete that.players[msg.id];
+    } else if (msg.action === 'enc') {
+      that.enc = msg.enc;
+    } else if (msg.action === 'exp') {
+      that.exp = msg.exp;
+    } else if (msg.action === 'time') {
+      that.tm = msg.time;
+      that.epoch = msg.epoch;
+      if (!msg.inc) {
+        that.lastrep = 0;
+      }
     } else {
       // TODO
     }
@@ -128,6 +139,39 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     return total;
   };
 
+  this.getTotalExpCost = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.enc;
+      }
+    }
+    return total;
+  };
+
+  this.getTotalLPHour = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.exp / (item.info.time / 60);
+      }
+    }
+    return total;
+  };
+
+  this.getTotalLP = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.exp;
+      }
+    }
+    return total;
+  };
+
   this.getProgress = function(id) {
     var progress = '';
     for (var i = 0; i < that.items.length; ++i) {
@@ -153,6 +197,56 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       return 'You';
     }
     return that.buddies[playerId] || '???';
+  };
+
+  this.parseTotalSecs = function(totalSecs) {
+    var secsInDay = 60 * 60 * 24;
+    var secsInHour = 60 * 60;
+
+    var day = totalSecs / secsInDay;
+    var secsToday = totalSecs % secsInDay;
+    var hours = secsToday / secsInHour;
+    var mins = (secsToday % secsInHour) / 60;
+
+    return {
+      day: day,
+      secsToday: secsToday,
+      hours: hours,
+      mins: mins
+    };
+  };
+
+  this.getServerTime = function() {
+    if (that.tm === undefined || that.epoch === undefined) {
+      return '';
+    }
+
+    var now = (new Date).getTime();
+    var raw = ((now - that.epoch) * 3) + (that.tm * 1000);
+    if (that.lastrep === 0) {
+      that.rgtime = raw;
+    } else {
+      var gd = (now - that.lastrep) * 3;
+      that.rgtime += gd;
+      if (Math.abs(that.rgtime + gd - raw) > 1000) {
+        that.rgtime += ((raw - that.rgtime) * (1.0 - Math.pow(10.0, -(now - that.lastrep) / 1000.0)));
+      }
+    }
+    that.lastrep = now;
+
+    var totalSecs = that.rgtime / 1000;
+    var times = that.parseTotalSecs(totalSecs);
+    return v.sprintf('Day %d, %02d:%02d', times.day, times.hours, times.mins);
+  };
+
+  this.isDewyLadysMantleTime = function() {
+    var totalSecs = that.rgtime / 1000;
+    var times = that.parseTotalSecs(totalSecs);
+
+    var dewyLadysMantleTimeStart = 4 * 60 * 60 + 45 * 60;
+    var dewyLadysMantleTimeEnd = 7 * 60 * 60 + 15 * 60;
+
+    return times.secsToday >= dewyLadysMantleTimeStart && times.secsToday <= dewyLadysMantleTimeEnd;
   };
 
   this.on = function(msgType, callback) {

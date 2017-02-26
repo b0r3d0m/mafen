@@ -2,7 +2,7 @@
   <div class="navbar-header">
     <a class="navbar-brand" href="#!/">
       <span>
-        <img src="favicon.ico">
+        <img src="/assets/icons/favicon.ico">
         Mafen
       </span>
     </a>
@@ -14,6 +14,14 @@
       <li ng-class="{ active: isCurrentPage('/attrs') }"><a href="#!/attrs">Attrs</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
+      <li>
+        <a class="navbar-brand" href="http://ringofbrodgar.com/wiki/Dewy_Lady%27s_Mantle" tooltip-placement="bottom" uib-tooltip="It's Dewy Lady's Mantle Time!" ng-if="isDewyLadysMantleTime">
+          <span>
+            <img src="/assets/imgs/items/dewyladysmantle.png">
+          </span>
+        </a>
+        <p class="navbar-text">{{serverTime}}</p>
+      </li>
       <li><a href="#!/" ng-click="logout()">Logout</a></li>
     </ul>
   </div>
