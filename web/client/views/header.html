@@ -15,6 +15,11 @@
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li>
+        <a class="navbar-brand" href="http://ringofbrodgar.com/wiki/Dewy_Lady%27s_Mantle" tooltip-placement="bottom" uib-tooltip="It's Dewy Lady's Mantle Time!" ng-if="isDewyLadysMantleTime">
+          <span>
+            <img src="/assets/imgs/items/dewyladysmantle.png">
+          </span>
+        </a>
         <p class="navbar-text">{{serverTime}}</p>
       </li>
       <li><a href="#!/" ng-click="logout()">Logout</a></li>

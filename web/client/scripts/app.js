@@ -122,6 +122,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 
   $interval(function() {
     $rootScope.serverTime = mafenSession.getServerTime();
+    $rootScope.isDewyLadysMantleTime = mafenSession.isDewyLadysMantleTime();
   }, 1000);
 });
 
