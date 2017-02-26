@@ -17,6 +17,8 @@ from simplelogger import SimpleLogger
 
 class WSServer(WebSocket, SimpleLogger):
     config = Config()
+    clients = {}
+    clients_lock = threading.Lock()
 
     @staticmethod
     def serve(config_path):
