@@ -199,6 +199,23 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     return that.buddies[playerId] || '???';
   };
 
+  this.parseTotalSecs = function(totalSecs) {
+    var secsInDay = 60 * 60 * 24;
+    var secsInHour = 60 * 60;
+
+    var day = totalSecs / secsInDay;
+    var secsToday = totalSecs % secsInDay;
+    var hours = secsToday / secsInHour;
+    var mins = (secsToday % secsInHour) / 60;
+
+    return {
+      day: day,
+      secsToday: secsToday,
+      hours: hours,
+      mins: mins
+    };
+  };
+
   this.getServerTime = function() {
     if (that.tm === undefined || that.epoch === undefined) {
       return '';
@@ -217,16 +234,19 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     }
     that.lastrep = now;
 
-    var secsInDay = 60 * 60 * 24;
-    var secsInHour = 60 * 60;
-
     var totalSecs = that.rgtime / 1000;
-    var day = totalSecs / secsInDay;
-    var secsToday = totalSecs % secsInDay;
-    var hours = secsToday / secsInHour;
-    var mins = (secsToday % secsInHour) / 60;
+    var times = that.parseTotalSecs(totalSecs);
+    return v.sprintf('Day %d, %02d:%02d', times.day, times.hours, times.mins);
+  };
 
-    return v.sprintf('Day %d, %02d:%02d', day, hours, mins);
+  this.isDewyLadysMantleTime = function() {
+    var totalSecs = that.rgtime / 1000;
+    var times = that.parseTotalSecs(totalSecs);
+
+    var dewyLadysMantleTimeStart = 4 * 60 * 60 + 45 * 60;
+    var dewyLadysMantleTimeEnd = 7 * 60 * 60 + 15 * 60;
+
+    return times.secsToday >= dewyLadysMantleTimeStart && times.secsToday <= dewyLadysMantleTimeEnd;
   };
 
   this.on = function(msgType, callback) {
