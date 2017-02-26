@@ -402,6 +402,22 @@ class WSServer(WebSocket, SimpleLogger):
                     'text': sender_msg
                 }))
             )
+        elif wdg_msg == 'exp':
+            exp = wdg_args[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'exp',
+                    'exp': exp
+                }))
+            )
+        elif wdg_msg == 'enc':
+            enc = wdg_args[0]
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'enc',
+                    'enc': enc
+                }))
+            )
         else:
             pass
 

@@ -68,6 +68,10 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
         return playerId !== msg.id;
       });
       delete that.players[msg.id];
+    } else if (msg.action === 'enc') {
+      that.enc = msg.enc;
+    } else if (msg.action === 'exp') {
+      that.exp = msg.exp;
     } else {
       // TODO
     }
@@ -123,6 +127,39 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       var item = that.items[i];
       if (item.info.curio && item.study) {
         total += item.info.mw;
+      }
+    }
+    return total;
+  };
+
+  this.getTotalExpCost = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.enc;
+      }
+    }
+    return total;
+  };
+
+  this.getTotalLPHour = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.exp / (item.info.time / 60);
+      }
+    }
+    return total;
+  };
+
+  this.getTotalLP = function() {
+    var total = 0;
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.info.curio && item.study) {
+        total += item.info.exp;
       }
     }
     return total;
