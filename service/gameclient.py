@@ -18,6 +18,7 @@ class RelMessageType(object):
     RMSG_NEWWDG = 0
     RMSG_WDGMSG = 1
     RMSG_DSTWDG = 2
+    RMSG_GLOBLOB = 4
     RMSG_RESID = 6
     RMSG_CATTR = 9
 

@@ -20,6 +20,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.players = [];
     that.buddies = {};
     that.callbacks = {};
+    that.lastrep = 0;
   };
 
   var onmessage = function(message) {
@@ -72,6 +73,12 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       that.enc = msg.enc;
     } else if (msg.action === 'exp') {
       that.exp = msg.exp;
+    } else if (msg.action === 'time') {
+      that.tm = msg.time;
+      that.epoch = msg.epoch;
+      if (!msg.inc) {
+        that.lastrep = 0;
+      }
     } else {
       // TODO
     }
@@ -190,6 +197,36 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       return 'You';
     }
     return that.buddies[playerId] || '???';
+  };
+
+  this.getServerTime = function() {
+    if (that.tm === undefined || that.epoch === undefined) {
+      return '';
+    }
+
+    var now = (new Date).getTime();
+    var raw = ((now - that.epoch) * 3) + (that.tm * 1000);
+    if (that.lastrep === 0) {
+      that.rgtime = raw;
+    } else {
+      var gd = (now - that.lastrep) * 3;
+      that.rgtime += gd;
+      if (Math.abs(that.rgtime + gd - raw) > 1000) {
+        that.rgtime += ((raw - that.rgtime) * (1.0 - Math.pow(10.0, -(now - that.lastrep) / 1000.0)));
+      }
+    }
+    that.lastrep = now;
+
+    var secsInDay = 60 * 60 * 24;
+    var secsInHour = 60 * 60;
+
+    var totalSecs = that.rgtime / 1000;
+    var day = totalSecs / secsInDay;
+    var secsToday = totalSecs % secsInDay;
+    var hours = secsToday / secsInHour;
+    var mins = (secsToday % secsInHour) / 60;
+
+    return v.sprintf('Day %d, %02d:%02d', day, hours, mins);
   };
 
   this.on = function(msgType, callback) {
