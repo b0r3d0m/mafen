@@ -38,10 +38,7 @@ class WSServer(WebSocket, SimpleLogger):
     @staticmethod
     def remove_client(key):
         with WSServer.clients_lock:
-            if key in WSServer.clients:
-                return WSServer.clients.pop(key)
-            else:
-                return None
+            return WSServer.clients.pop(key, None)
 
     def handleMessage(self):
         msg = json.loads(self.data)
