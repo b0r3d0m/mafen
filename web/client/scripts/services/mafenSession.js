@@ -69,7 +69,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       that.players = that.players.filter(function(playerId) {
         return playerId !== msg.id;
       });
-      delete that.players[msg.id];
+      delete that.buddies[msg.id];
     } else if (msg.action === 'enc') {
       that.enc = msg.enc;
     } else if (msg.action === 'exp') {
