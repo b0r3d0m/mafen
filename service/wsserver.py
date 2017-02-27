@@ -36,14 +36,12 @@ class WSServer(WebSocket, SimpleLogger):
             WSServer.clients[key] = status
 
     @staticmethod
-    def get_client_status(key):
-        with WSServer.clients_lock:
-            return WSServer.clients.get(key)
-
-    @staticmethod
     def remove_client(key):
         with WSServer.clients_lock:
-            WSServer.clients.pop(key, None)
+            if key in WSServer.clients:
+                return WSServer.clients.pop(key)
+            else:
+                return None
 
     def handleMessage(self):
         msg = json.loads(self.data)
@@ -68,10 +66,8 @@ class WSServer(WebSocket, SimpleLogger):
         WSServer.set_client_status(self.address, True)
 
     def handleClose(self):
-        client_status = WSServer.get_client_status(self.address)
-        if client_status is None:
+        if WSServer.remove_client(self.address) is None:
             return
-        WSServer.remove_client(self.address)
         self.info('{} closed'.format(self.address))
         self.set_gs(GameState.CLOSE)
 

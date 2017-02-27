@@ -53,6 +53,7 @@ class GameState(object):
     PLAY = 1
     CLOSE = 2
 
+
 class GameException(Exception):
     pass
 
