@@ -17,6 +17,8 @@ from simplelogger import SimpleLogger
 
 class WSServer(WebSocket, SimpleLogger):
     config = Config()
+    clients = {}
+    clients_lock = threading.Lock()
 
     @staticmethod
     def serve(config_path):
@@ -27,6 +29,16 @@ class WSServer(WebSocket, SimpleLogger):
             WSServer
         )
         server.serveforever()
+
+    @staticmethod
+    def set_client_status(key, status):
+        with WSServer.clients_lock:
+            WSServer.clients[key] = status
+
+    @staticmethod
+    def remove_client(key):
+        with WSServer.clients_lock:
+            return WSServer.clients.pop(key, None)
 
     def handleMessage(self):
         msg = json.loads(self.data)
@@ -48,8 +60,11 @@ class WSServer(WebSocket, SimpleLogger):
         self.info('{} connected'.format(self.address))
         self.gs_lock = threading.Lock()
         self.set_gs(GameState.CONN)
+        WSServer.set_client_status(self.address, True)
 
     def handleClose(self):
+        if WSServer.remove_client(self.address) is None:
+            return
         self.info('{} closed'.format(self.address))
         self.set_gs(GameState.CLOSE)
 
