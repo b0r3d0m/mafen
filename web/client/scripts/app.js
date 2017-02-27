@@ -10,11 +10,12 @@ require('angularjs-scroll-glue/src/scrollglue.js');
 require('angular-css');
 require('angular-route');
 require('angular-tablesort');
+require('angular-toarrayfilter/toArrayFilter.js');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
 require('alertify.js/dist/js/ngAlertify.js');
 require('ion-sound/js/ion.sound.min.js');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives'])
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives', 'angular-toArrayFilter'])
 .constant('PATHS', {
   views: '/views/',
   styles: '/styles/',

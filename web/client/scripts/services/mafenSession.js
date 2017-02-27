@@ -21,6 +21,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.buddies = {};
     that.callbacks = {};
     that.lastrep = 0;
+    that.kins = {};
   };
 
   var onmessage = function(message) {
@@ -79,6 +80,17 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       if (!msg.inc) {
         that.lastrep = 0;
       }
+    } else if (msg.action === 'kinadd' || msg.action === 'kinupd') {
+      that.kins[msg.id] = {
+        name: msg.name,
+        online: msg.online
+      };
+    } else if (msg.action === 'kinchst') {
+      if (msg.id in that.kins) {
+        that.kins[msg.id].online = msg.online;
+      }
+    } else if (msg.action === 'kinrm') {
+      delete that.kins[msg.id];
     } else {
       // TODO
     }
