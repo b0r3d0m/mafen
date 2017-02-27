@@ -49,8 +49,8 @@ class SimpleLogger(object):
 
         self.root_logger.setLevel(logging.INFO)
 
-        dir = os.path.dirname(os.path.abspath(__file__))
-        logs_path = os.path.join(dir, 'logs')
+        logger_path = os.path.dirname(os.path.abspath(__file__))
+        logs_path = os.path.join(logger_path, 'logs')
         if not os.path.exists(logs_path):
             try:
                 os.makedirs(logs_path)
