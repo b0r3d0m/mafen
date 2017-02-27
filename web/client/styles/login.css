@@ -1,4 +1,5 @@
 html {
+  height: 100%; /* required for proper background coverage on Android Chrome versions */
   background: url(/assets/imgs/bg.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
