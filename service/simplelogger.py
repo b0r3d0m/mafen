@@ -1,7 +1,7 @@
+import errno
 import logging
 import logging.handlers
 import os
-import errno
 
 
 class LogFormatter(logging.Formatter):
