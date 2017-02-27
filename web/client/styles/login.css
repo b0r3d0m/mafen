@@ -1,11 +1,6 @@
 html {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  background: url(/assets/imgs/bg.jpg) no-repeat center center;
+  height: 100%; /* required for proper background coverage on Android Chrome versions */
+  background: url(/assets/imgs/bg.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
