@@ -7,7 +7,7 @@
         </uib-tab-heading>
         <div class="chat-container" scroll-glue>
           <div class="well well-sm" ng-repeat="msg in mafenSession.msgs[chat.id]">
-            {{msg.from}}: {{msg.text}}
+            <b>{{msg.from}}</b>: {{msg.text}}
           </div>
         </div>
         <form ng-submit="sendMsg(chat.id)">
