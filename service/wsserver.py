@@ -7,7 +7,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 
 from authclient import AuthClient, AuthException
 from config import Config
-from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, GameState
+from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, PartyDataType, GameState
 from gob import Gob
 from item import Item
 from messagebuf import MessageBuf
@@ -344,6 +344,8 @@ class WSServer(WebSocket, SimpleLogger):
                     self.on_rmsg_globlob(rmsg)
                 elif rel_type == RelMessageType.RMSG_RESID:
                     self.on_rmsg_resid(rmsg)
+                elif rel_type == RelMessageType.RMSG_PARTY:
+                    self.on_rmsg_party(rmsg)
                 elif rel_type == RelMessageType.RMSG_CATTR:
                     self.on_rmsg_cattr(rmsg)
                 else:
@@ -606,6 +608,31 @@ class WSServer(WebSocket, SimpleLogger):
         resname = msg.get_string()
         resver = msg.get_uint16()
         ResLoader.add_map(resid, resname, resver)
+
+    def on_rmsg_party(self, msg):
+        while not msg.eom():
+            t = msg.get_uint8()
+            if t == PartyDataType.PD_LIST:
+                mids = []
+                while True:
+                    mid = msg.get_int32()
+                    if mid < 0:
+                        break
+                    mids.append(mid)
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'party',
+                        'members': mids
+                    }))
+                )
+            elif t == PartyDataType.PD_LEADER:
+                mid = msg.get_int32()
+            elif t == PartyDataType.PD_MEMBER:
+                mid = msg.get_int32()
+                vis = msg.get_uint8() == 1
+                if vis:
+                    c = msg.get_coords()
+                col = msg.get_color()
 
     def on_rmsg_cattr(self, msg):
         attrs = {}

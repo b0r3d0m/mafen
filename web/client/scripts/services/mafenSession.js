@@ -22,6 +22,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.callbacks = {};
     that.lastrep = 0;
     that.kins = {};
+    that.pmembers = [];
   };
 
   var onmessage = function(message) {
@@ -105,6 +106,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       }
     } else if (msg.action === 'kinrm') {
       delete that.kins[msg.id];
+    } else if (msg.action === 'party') {
+      that.pmembers = msg.members;
     } else {
       // TODO
     }
