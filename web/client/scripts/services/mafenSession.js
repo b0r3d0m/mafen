@@ -1,6 +1,7 @@
 'use strict';
 
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
+var messageActions = require('./messageActions');
 var v = require('voca');
 
 angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
@@ -29,85 +30,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
     var msg = JSON.parse(message.data);
 
-    if (msg.action === 'connect') {
-      if (msg.success) {
-        that.loggedIn = true;
-        that.loginDeferred.resolve();
-      } else {
-        that.loginDeferred.reject();
-      }
-    } else if (msg.action === 'character') {
-      that.characters.push(msg.name);
-    } else if (msg.action === 'item') {
-      that.items.push(msg);
-    } else if (msg.action === 'destroy') {
-      that.items = that.items.filter(function(item) {
-        return item.id !== msg.id;
-      });
-      delete that.meters[msg.id];
-    } else if (msg.action === 'attr') {
-      that.attrs = msg.attrs;
-    } else if (msg.action === 'meter') {
-      that.meters[msg.id] = msg.meter;
-    } else if (msg.action === 'mchat') {
-      that.chats.push({
-        id: msg.id,
-        name: msg.name
-      });
-    } else if (msg.action === 'pchat') {
-      that.chats.push({
-        id: msg.id,
-        name: 'Party'
-      });
-    } else if (msg.action === 'pmchat') {
-      that.chats.push({
-        id: msg.id,
-        name: msg.other
-      });
-    } else if (msg.action === 'pchatrm') {
-      that.chats = that.chats.filter(function(chat) {
-        return chat.id !== msg.id;
-      });
-    } else if (msg.action === 'msg') {
-      (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
-        from: msg.from,
-        text: msg.text
-      });
-    } else if (msg.action === 'player') {
-      that.players.push(msg.id);
-    } else if (msg.action === 'buddy') {
-      that.buddies[msg.id] = msg.name;
-    } else if (msg.action === 'pgob') {
-      that.pgob = msg.id;
-    } else if (msg.action === 'gobrem') {
-      that.players = that.players.filter(function(playerId) {
-        return playerId !== msg.id;
-      });
-      delete that.buddies[msg.id];
-    } else if (msg.action === 'enc') {
-      that.enc = msg.enc;
-    } else if (msg.action === 'exp') {
-      that.exp = msg.exp;
-    } else if (msg.action === 'time') {
-      that.tm = msg.time;
-      that.epoch = msg.epoch;
-      if (!msg.inc) {
-        that.lastrep = 0;
-      }
-    } else if (msg.action === 'kinadd' || msg.action === 'kinupd') {
-      that.kins[msg.id] = {
-        name: msg.name,
-        online: msg.online
-      };
-    } else if (msg.action === 'kinchst') {
-      if (msg.id in that.kins) {
-        that.kins[msg.id].online = msg.online;
-      }
-    } else if (msg.action === 'kinrm') {
-      delete that.kins[msg.id];
-    } else {
-      // TODO
-    }
+    messageActions.init($rootScope);
+    messageActions[msg.action](that, msg);
 
     var cb = that.callbacks[msg.action];
     if (cb) {
