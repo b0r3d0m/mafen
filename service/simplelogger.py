@@ -1,5 +1,7 @@
+import errno
 import logging
 import logging.handlers
+import os
 
 
 class LogFormatter(logging.Formatter):
@@ -47,7 +49,17 @@ class SimpleLogger(object):
 
         self.root_logger.setLevel(logging.INFO)
 
-        fh = logging.handlers.TimedRotatingFileHandler('log_', when='midnight')
+        logger_path = os.path.dirname(os.path.abspath(__file__))
+        logs_path = os.path.join(logger_path, 'logs')
+        if not os.path.exists(logs_path):
+            try:
+                os.makedirs(logs_path)
+            except OSError as exc:
+                if exc.errno != errno.EEXIST:
+                    raise
+                pass
+
+        fh = logging.handlers.TimedRotatingFileHandler(os.path.join(logs_path, 'log_'), when='midnight')
         fh.setFormatter(LogFormatter())
         self.root_logger.addHandler(fh)
 

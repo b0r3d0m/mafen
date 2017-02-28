@@ -21,6 +21,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.buddies = {};
     that.callbacks = {};
     that.lastrep = 0;
+    that.kins = {};
+    that.pmembers = [];
   };
 
   var onmessage = function(message) {
@@ -53,6 +55,20 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
         id: msg.id,
         name: msg.name
       });
+    } else if (msg.action === 'pchat') {
+      that.chats.push({
+        id: msg.id,
+        name: 'Party'
+      });
+    } else if (msg.action === 'pmchat') {
+      that.chats.push({
+        id: msg.id,
+        name: msg.other
+      });
+    } else if (msg.action === 'pchatrm') {
+      that.chats = that.chats.filter(function(chat) {
+        return chat.id !== msg.id;
+      });
     } else if (msg.action === 'msg') {
       (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
         from: msg.from,
@@ -68,7 +84,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       that.players = that.players.filter(function(playerId) {
         return playerId !== msg.id;
       });
-      delete that.players[msg.id];
+      delete that.buddies[msg.id];
     } else if (msg.action === 'enc') {
       that.enc = msg.enc;
     } else if (msg.action === 'exp') {
@@ -79,6 +95,19 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       if (!msg.inc) {
         that.lastrep = 0;
       }
+    } else if (msg.action === 'kinadd' || msg.action === 'kinupd') {
+      that.kins[msg.id] = {
+        name: msg.name,
+        online: msg.online
+      };
+    } else if (msg.action === 'kinchst') {
+      if (msg.id in that.kins) {
+        that.kins[msg.id].online = msg.online;
+      }
+    } else if (msg.action === 'kinrm') {
+      delete that.kins[msg.id];
+    } else if (msg.action === 'party') {
+      that.pmembers = msg.members;
     } else {
       // TODO
     }
