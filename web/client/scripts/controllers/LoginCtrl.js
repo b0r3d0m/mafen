@@ -57,7 +57,7 @@ angular.module('app').controller('LoginCtrl', function($scope, $uibModal, mafenS
 
   function createLoginConnect(username, password) {
     $scope.mafenSession.reset();
-    $scope.mafenSession.connect('ws://localhost:8000');
+    $scope.mafenSession.connect('ws://mafen.club:8000');
     $scope.loginPromise = $scope.mafenSession.login(username, password);
     return $scope.loginPromise;
   };

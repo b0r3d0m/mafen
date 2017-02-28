@@ -22,6 +22,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.callbacks = {};
     that.lastrep = 0;
     that.kins = {};
+    that.pmembers = [];
   };
 
   var onmessage = function(message) {
@@ -53,6 +54,20 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       that.chats.push({
         id: msg.id,
         name: msg.name
+      });
+    } else if (msg.action === 'pchat') {
+      that.chats.push({
+        id: msg.id,
+        name: 'Party'
+      });
+    } else if (msg.action === 'pmchat') {
+      that.chats.push({
+        id: msg.id,
+        name: msg.other
+      });
+    } else if (msg.action === 'pchatrm') {
+      that.chats = that.chats.filter(function(chat) {
+        return chat.id !== msg.id;
       });
     } else if (msg.action === 'msg') {
       (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
@@ -91,6 +106,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       }
     } else if (msg.action === 'kinrm') {
       delete that.kins[msg.id];
+    } else if (msg.action === 'party') {
+      that.pmembers = msg.members;
     } else {
       // TODO
     }
