@@ -48,4 +48,13 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafen
       }
     });
   };
+
+  $scope.chatKin = function(kinId) {
+    $scope.mafenSession.send({
+      action: 'pmchat',
+      data: {
+        id: parseInt(kinId, 10)
+      }
+    });
+  };
 });
