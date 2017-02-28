@@ -13,6 +13,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.loggedIn = false;
     that.characters = [];
     that.items = [];
+    that.meters = {};
     that.attrs = {};
     that.chats = [];
     that.msgs = {};
@@ -46,11 +47,12 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     } else if (msg.action === 'attr') {
       that.attrs = msg.attrs;
     } else if (msg.action === 'meter') {
-      var item = that.items.filter(function(item) {
-        return item.id === msg.id;
-      })[0];
-      if(item != undefined) {
-        item.meter = msg.meter;
+      for (var i = 0; i < that.items.length; ++i) {
+        var item = that.items[i];
+        if (item.id === msg.id) {
+          item.meter = msg.meter;
+          break;
+        }
       }
     } else if (msg.action === 'mchat') {
       that.chats.push({
@@ -189,16 +191,17 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
   this.getProgress = function(id) {
     var progress = '';
-    var item = that.items.filter(function(item) {
-      return item.id === id;
-    })[0];
-    if(item != undefined && item.meter !== undefined) {
-      var minsLeft = item.info.time * (100 - item.meter) / 100;
-      progress = v.sprintf(
-        '%d%% (~%s left)',
-        item.meter,
-        $rootScope.minutesToHoursMinutes(minsLeft)
-      );
+    for (var i = 0; i < that.items.length; ++i) {
+      var item = that.items[i];
+      if (item.id === id && item.meter !== undefined) {
+        var minsLeft = item.info.time * (100 - item.meter) / 100;
+        progress = v.sprintf(
+          '%d%% (~%s left)',
+          item.meter,
+          $rootScope.minutesToHoursMinutes(minsLeft)
+        );
+        break;
+      }
     }
     return progress;
   };
