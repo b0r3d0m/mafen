@@ -52,6 +52,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_transfer_message(data)
         elif action == 'msg':
             self.handle_msg_message(data)
+        elif action == 'inv':
+            self.handle_inv_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -102,6 +104,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.buddies = {}
             self.gobs = {}
             self.gobs_lock = threading.Lock()
+            self.mchats = {}
+            self.pchat_wdg_id = -1
 
             self.gc = GameClient(
                 WSServer.config.game_host,
@@ -184,6 +188,20 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint16(chat_id)
         msg.add_string('msg')
         msg.add_list([chat_msg])
+        self.queue_rmsg(msg)
+
+    def handle_inv_message(self, data):
+        if self.get_gs() != GameState.PLAY or self.buddy_wdg_id == -1:
+            # TODO: Send response back to the client
+            return
+
+        kin_id = data['id']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.buddy_wdg_id)
+        msg.add_string('inv')
+        msg.add_list([kin_id])
         self.queue_rmsg(msg)
 
     def queue_rmsg(self, rmsg):
@@ -361,6 +379,15 @@ class WSServer(WebSocket, SimpleLogger):
                     'name': chat_name
                 }))
             )
+            self.mchats[wdg_id] = chat_name
+        elif wdg_type == 'pchat':
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'pchat',
+                    'id': wdg_id
+                }))
+            )
+            self.pchat_wdg_id = wdg_id
         elif wdg_type == 'mapview':
             pgob = -1
             if len(wdg_cargs) > 2:
@@ -417,9 +444,15 @@ class WSServer(WebSocket, SimpleLogger):
                 }))
             )
         elif wdg_msg == 'msg':
-            sender_id = wdg_args[0]
-            sender_msg = wdg_args[1]
-
+            if wdg_id in self.mchats:
+                sender_id = wdg_args[0]
+                sender_msg = wdg_args[1]
+            elif wdg_id == self.pchat_wdg_id:
+                sender_id = wdg_args[0]
+                # gobid = wdg_args[1]  # Not used
+                sender_msg = wdg_args[2]
+            else:
+                return
             self.sendMessage(
                 unicode(json.dumps({
                     'action': 'msg',
@@ -485,17 +518,25 @@ class WSServer(WebSocket, SimpleLogger):
 
     def on_rmsg_dstwdg(self, msg):
         wdg_id = msg.get_uint16()
-        with self.items_lock:
-            for item in self.items[:]:
-                if item.wdg_id == wdg_id:
-                    self.sendMessage(
-                        unicode(json.dumps({
-                            'action': 'destroy',
-                            'id': wdg_id
-                        }))
-                    )
-                    self.items.remove(item)
-                    break
+        if wdg_id == self.pchat_wdg_id:
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'pchatrm',
+                    'id': wdg_id
+                }))
+            )
+        else:
+            with self.items_lock:
+                for item in self.items[:]:
+                    if item.wdg_id == wdg_id:
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'destroy',
+                                'id': wdg_id
+                            }))
+                        )
+                        self.items.remove(item)
+                        break
 
     def on_rmsg_globlob(self, msg):
         inc = msg.get_uint8() != 0
