@@ -39,6 +39,10 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     } else if (msg.action === 'character') {
       that.characters.push(msg.name);
     } else if (msg.action === 'item') {
+      if (that.meters[msg.id] !== undefined) {
+        msg.meter = that.meters[msg.id];
+        delete that.meters[msg.id];
+      }
       that.items.push(msg);
     } else if (msg.action === 'destroy') {
       that.items = that.items.filter(function(item) {
@@ -47,12 +51,11 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     } else if (msg.action === 'attr') {
       that.attrs = msg.attrs;
     } else if (msg.action === 'meter') {
-      for (var i = 0; i < that.items.length; ++i) {
-        var item = that.items[i];
-        if (item.id === msg.id) {
-          item.meter = msg.meter;
-          break;
-        }
+      var item = $rootScope.findFirstWithProp(that.items, 'id', msg.id);
+      if (item !== undefined) {
+        item.meter = msg.meter;
+      } else {
+        that.meters[msg.id] = msg.meter;
       }
     } else if (msg.action === 'mchat') {
       that.chats.push({
@@ -191,17 +194,14 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
   this.getProgress = function(id) {
     var progress = '';
-    for (var i = 0; i < that.items.length; ++i) {
-      var item = that.items[i];
-      if (item.id === id && item.meter !== undefined) {
-        var minsLeft = item.info.time * (100 - item.meter) / 100;
-        progress = v.sprintf(
-          '%d%% (~%s left)',
-          item.meter,
-          $rootScope.minutesToHoursMinutes(minsLeft)
-        );
-        break;
-      }
+    var item = $rootScope.findFirstWithProp(that.items, 'id', id);
+    if (item !== undefined && item.meter !== undefined) {
+      var minsLeft = item.info.time * (100 - item.meter) / 100;
+      progress = v.sprintf(
+        '%d%% (~%s left)',
+        item.meter,
+        $rootScope.minutesToHoursMinutes(minsLeft)
+      );
     }
     return progress;
   };
