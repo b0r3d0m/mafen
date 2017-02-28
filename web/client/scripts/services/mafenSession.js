@@ -67,6 +67,11 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
         id: msg.id,
         name: 'Party'
       });
+    } else if (msg.action === 'pmchat') {
+      that.chats.push({
+        id: msg.id,
+        name: msg.other
+      });
     } else if (msg.action === 'pchatrm') {
       that.chats = that.chats.filter(function(chat) {
         return chat.id !== msg.id;
