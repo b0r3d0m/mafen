@@ -391,7 +391,16 @@ class WSServer(WebSocket, SimpleLogger):
             elif wdg_id == self.buddy_wdg_id:
                 buddy_id = wdg_args[0]
                 buddy_name = wdg_args[1]
-                # online, group, seen etc
+                online = wdg_args[2]
+                # group, seen etc
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'kinadd',
+                        'id': buddy_id,
+                        'name': buddy_name,
+                        'online': online
+                    }))
+                )
                 self.buddies[buddy_id] = buddy_name
         elif wdg_msg == 'tt':
             with self.items_lock:
@@ -435,6 +444,42 @@ class WSServer(WebSocket, SimpleLogger):
                     'enc': enc
                 }))
             )
+        elif wdg_msg == 'rm':
+            if wdg_id == self.buddy_wdg_id:
+                buddy_id = wdg_args[0]
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'kinrm',
+                        'id': buddy_id
+                    }))
+                )
+                del self.buddies[buddy_id]
+        elif wdg_msg == 'chst':
+            if wdg_id == self.buddy_wdg_id:
+                buddy_id = wdg_args[0]
+                online = wdg_args[1]
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'kinchst',
+                        'id': buddy_id,
+                        'online': online
+                    }))
+                )
+        elif wdg_msg == 'upd':
+            if wdg_id == self.buddy_wdg_id:
+                buddy_id = wdg_args[0]
+                buddy_name = wdg_args[1]
+                online = wdg_args[2]
+                # group, seen etc
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'kinupd',
+                        'id': buddy_id,
+                        'name': buddy_name,
+                        'online': online
+                    }))
+                )
+                self.buddies[buddy_id] = buddy_name
         else:
             pass
 
