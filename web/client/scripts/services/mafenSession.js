@@ -1,8 +1,8 @@
 'use strict';
 
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
-var v = require('voca');
 var messageActions = require('./messageActions');
+var v = require('voca');
 
 angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
   'ngInject';
