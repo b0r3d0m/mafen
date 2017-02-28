@@ -20,6 +20,7 @@ class RelMessageType(object):
     RMSG_DSTWDG = 2
     RMSG_GLOBLOB = 4
     RMSG_RESID = 6
+    RMSG_PARTY = 7
     RMSG_CATTR = 9
 
 
@@ -46,6 +47,12 @@ class ObjDataType(object):
     OD_ICON = 19
     OD_RESATTR = 20
     OD_END = 255
+
+
+class PartyDataType(object):
+    PD_LIST = 0
+    PD_LEADER = 1
+    PD_MEMBER = 2
 
 
 class GameState(object):
