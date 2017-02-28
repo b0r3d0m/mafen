@@ -179,6 +179,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
       if (item.id === id) {
         var meter = that.meters[id];
         if (meter !== undefined) {
+          item.meter = meter;
           var minsLeft = item.info.time * (100 - meter) / 100;
           progress = v.sprintf(
             '%d%% (~%s left)',

@@ -7,12 +7,10 @@ html {
 }
 
 body {
-  margin-bottom: 90px;
+  margin-bottom: 10px;
 }
 
 .footer {
-  position: absolute;
   bottom: 0;
   width: 95%; /* TODO: Think about more elegant way to do it */
-  height: 90px;
 }
