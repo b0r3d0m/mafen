@@ -41,6 +41,7 @@
           <tr>
             <th ts-criteria="online" ts-default="descending">Status</th>
             <th ts-criteria="name">Name</th>
+            <th></th>
           <tr>
         </thead>
         <tbody>
@@ -55,6 +56,11 @@
               <span ng-switch-default>Unknown</span>
             </td>
             <td>{{kin.name}}</td>
+            <td>
+              <button class="btn btn-success" ng-click="inviteKin(kin.$key)" ng-disabled="kin.online !== 1">
+                Invite
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
