@@ -6,6 +6,14 @@ var messageActions = {
   }
 };
 
+messageActions.attr = function(that, msg) {
+  that.attrs = msg.attrs;
+};
+
+messageActions.buddy = function(that, msg) {
+  that.buddies[msg.id] = msg.name;
+};
+
 messageActions.connect = function(that, msg) {
   if (msg.success) {
     that.loggedIn = true;
@@ -19,76 +27,11 @@ messageActions.character = function(that, msg) {
   that.characters.push(msg.name);
 };
 
-messageActions.item = function(that, msg) {
-  that.items.push(msg);
-};
-
 messageActions.destroy = function(that, msg) {
   that.items = that.items.filter(function(item) {
     return item.id !== msg.id;
   });
   delete that.meters[msg.id];
-};
-
-messageActions.attr = function(that, msg) {
-  that.attrs = msg.attrs;
-};
-
-messageActions.meter = function(that, msg) {
-  that.meters[msg.id] = msg.meter;
-};
-
-messageActions.mchat = function(that, msg) {
-  that.chats.push({
-    id: msg.id,
-    name: msg.name
-  });
-};
-
-messageActions.pchat = function(that, msg) {
-  that.chats.push({
-    id: msg.id,
-    name: 'Party'
-  });
-};
-
-messageActions.pmchat = function(that, msg) {
-  that.chats.push({
-    id: msg.id,
-    name: msg.other
-  });
-};
-
-messageActions.pchatrm = function(that, msg) {
-  that.chats = that.chats.filter(function(chat) {
-    return chat.id !== msg.id;
-  });
-};
-
-messageActions.msg = function(that, msg) {
-  (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
-    from: msg.from,
-    text: msg.text
-  });
-};
-
-messageActions.player = function(that, msg) {
-  that.players.push(msg.id);
-};
-
-messageActions.buddy = function(that, msg) {
-  that.buddies[msg.id] = msg.name;
-};
-
-messageActions.pgob = function(that, msg) {
-  that.pgob = msg.id;
-};
-
-messageActions.gobrem = function(that, msg) {
-  that.players = that.players.filter(function(playerId) {
-    return playerId !== msg.id;
-  });
-  delete that.buddies[msg.id];
 };
 
 messageActions.enc = function(that, msg) {
@@ -99,12 +42,15 @@ messageActions.exp = function(that, msg) {
   that.exp = msg.exp;
 };
 
-messageActions.time = function(that, msg) {
-  that.tm = msg.time;
-  that.epoch = msg.epoch;
-  if (!msg.inc) {
-    that.lastrep = 0;
-  }
+messageActions.item = function(that, msg) {
+  that.items.push(msg);
+};
+
+messageActions.gobrem = function(that, msg) {
+  that.players = that.players.filter(function(playerId) {
+    return playerId !== msg.id;
+  });
+  delete that.buddies[msg.id];
 };
 
 messageActions.kinadd = messageActions.kinupd = function(that, msg) {
@@ -122,6 +68,67 @@ messageActions.kinchst = function(that, msg) {
 
 messageActions.kinrm = function(that, msg) {
   delete that.kins[msg.id];
+};
+
+messageActions.mchat = function(that, msg) {
+  that.chats.push({
+    id: msg.id,
+    name: msg.name,
+    closable: false
+  });
+};
+
+messageActions.meter = function(that, msg) {
+  that.meters[msg.id] = msg.meter;
+};
+
+messageActions.msg = function(that, msg) {
+  (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
+    from: msg.from,
+    text: msg.text
+  });
+};
+
+messageActions.party = function(that, msg) {
+  that.pmembers = msg.members;
+};
+
+messageActions.pchat = function(that, msg) {
+  that.chats.push({
+    id: msg.id,
+    name: 'Party',
+    closable: false
+  });
+};
+
+messageActions.pchatrm = function(that, msg) {
+  that.chats = that.chats.filter(function(chat) {
+    return chat.id !== msg.id;
+  });
+};
+
+messageActions.pgob = function(that, msg) {
+  that.pgob = msg.id;
+};
+
+messageActions.player = function(that, msg) {
+  that.players.push(msg.id);
+};
+
+messageActions.pmchat = function(that, msg) {
+  that.chats.push({
+    id: msg.id,
+    name: msg.other,
+    closable: true
+  });
+};
+
+messageActions.time = function(that, msg) {
+  that.tm = msg.time;
+  that.epoch = msg.epoch;
+  if (!msg.inc) {
+    that.lastrep = 0;
+  }
 };
 
 module.exports = messageActions;
