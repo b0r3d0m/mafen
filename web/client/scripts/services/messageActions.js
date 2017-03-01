@@ -6,128 +6,128 @@ var messageActions = {
   }
 };
 
-messageActions.attr = function(that, msg) {
-  that.attrs = msg.attrs;
+messageActions.attr = function(ms, msg) {
+  ms.attrs = msg.attrs;
 };
 
-messageActions.buddy = function(that, msg) {
-  that.buddies[msg.id] = msg.name;
+messageActions.buddy = function(ms, msg) {
+  ms.buddies[msg.id] = msg.name;
 };
 
-messageActions.connect = function(that, msg) {
+messageActions.connect = function(ms, msg) {
   if (msg.success) {
-    that.loggedIn = true;
-    that.loginDeferred.resolve();
+    ms.loggedIn = true;
+    ms.loginDeferred.resolve();
   } else {
-    that.loginDeferred.reject();
+    ms.loginDeferred.reject();
   }
 };
 
-messageActions.character = function(that, msg) {
-  that.characters.push(msg.name);
+messageActions.character = function(ms, msg) {
+  ms.characters.push(msg.name);
 };
 
-messageActions.destroy = function(that, msg) {
-  that.items = that.items.filter(function(item) {
+messageActions.destroy = function(ms, msg) {
+  ms.items = ms.items.filter(function(item) {
     return item.id !== msg.id;
   });
-  delete that.meters[msg.id];
+  delete ms.meters[msg.id];
 };
 
-messageActions.enc = function(that, msg) {
-  that.enc = msg.enc;
+messageActions.enc = function(ms, msg) {
+  ms.enc = msg.enc;
 };
 
-messageActions.exp = function(that, msg) {
-  that.exp = msg.exp;
+messageActions.exp = function(ms, msg) {
+  ms.exp = msg.exp;
 };
 
-messageActions.item = function(that, msg) {
-  that.items.push(msg);
+messageActions.item = function(ms, msg) {
+  ms.items.push(msg);
 };
 
-messageActions.gobrem = function(that, msg) {
-  that.players = that.players.filter(function(playerId) {
+messageActions.gobrem = function(ms, msg) {
+  ms.players = ms.players.filter(function(playerId) {
     return playerId !== msg.id;
   });
-  delete that.buddies[msg.id];
+  delete ms.buddies[msg.id];
 };
 
-messageActions.kinadd = messageActions.kinupd = function(that, msg) {
-  that.kins[msg.id] = {
+messageActions.kinadd = messageActions.kinupd = function(ms, msg) {
+  ms.kins[msg.id] = {
     name: msg.name,
     online: msg.online
   };
 };
 
-messageActions.kinchst = function(that, msg) {
-  if (msg.id in that.kins) {
-    that.kins[msg.id].online = msg.online;
+messageActions.kinchst = function(ms, msg) {
+  if (msg.id in ms.kins) {
+    ms.kins[msg.id].online = msg.online;
   }
 };
 
-messageActions.kinrm = function(that, msg) {
-  delete that.kins[msg.id];
+messageActions.kinrm = function(ms, msg) {
+  delete ms.kins[msg.id];
 };
 
-messageActions.mchat = function(that, msg) {
-  that.chats.push({
+messageActions.mchat = function(ms, msg) {
+  ms.chats.push({
     id: msg.id,
     name: msg.name,
     closable: false
   });
 };
 
-messageActions.meter = function(that, msg) {
-  that.meters[msg.id] = msg.meter;
+messageActions.meter = function(ms, msg) {
+  ms.meters[msg.id] = msg.meter;
 };
 
-messageActions.msg = function(that, msg) {
-  (that.msgs[msg.chat] = that.msgs[msg.chat] || []).push({
+messageActions.msg = function(ms, msg) {
+  (ms.msgs[msg.chat] = ms.msgs[msg.chat] || []).push({
     from: msg.from,
     text: msg.text
   });
 };
 
-messageActions.party = function(that, msg) {
-  that.pmembers = msg.members;
+messageActions.party = function(ms, msg) {
+  ms.pmembers = msg.members;
 };
 
-messageActions.pchat = function(that, msg) {
-  that.chats.push({
+messageActions.pchat = function(ms, msg) {
+  ms.chats.push({
     id: msg.id,
     name: 'Party',
     closable: false
   });
 };
 
-messageActions.pchatrm = function(that, msg) {
-  that.chats = that.chats.filter(function(chat) {
+messageActions.pchatrm = function(ms, msg) {
+  ms.chats = ms.chats.filter(function(chat) {
     return chat.id !== msg.id;
   });
 };
 
-messageActions.pgob = function(that, msg) {
-  that.pgob = msg.id;
+messageActions.pgob = function(ms, msg) {
+  ms.pgob = msg.id;
 };
 
-messageActions.player = function(that, msg) {
-  that.players.push(msg.id);
+messageActions.player = function(ms, msg) {
+  ms.players.push(msg.id);
 };
 
-messageActions.pmchat = function(that, msg) {
-  that.chats.push({
+messageActions.pmchat = function(ms, msg) {
+  ms.chats.push({
     id: msg.id,
     name: msg.other,
     closable: true
   });
 };
 
-messageActions.time = function(that, msg) {
-  that.tm = msg.time;
-  that.epoch = msg.epoch;
+messageActions.time = function(ms, msg) {
+  ms.tm = msg.time;
+  ms.epoch = msg.epoch;
   if (!msg.inc) {
-    that.lastrep = 0;
+    ms.lastrep = 0;
   }
 };
 
