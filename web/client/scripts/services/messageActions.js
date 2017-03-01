@@ -2,7 +2,7 @@
 
 var messageActions = {
   init: function($rootScope) {
-    this.findFirstWithProp = $rootScope.findFirstWithProp;
+    this.rootScope = $rootScope;
   }
 };
 
@@ -43,6 +43,10 @@ messageActions.exp = function(ms, msg) {
 };
 
 messageActions.item = function(ms, msg) {
+  if (ms.meters[msg.id] !== undefined) {
+    msg.meter = ms.meters[msg.id];
+    delete ms.meters[msg.id];
+  }
   ms.items.push(msg);
 };
 
@@ -79,7 +83,12 @@ messageActions.mchat = function(ms, msg) {
 };
 
 messageActions.meter = function(ms, msg) {
-  ms.meters[msg.id] = msg.meter;
+  var item = this.rootScope.findFirstWithProp(ms.items, 'id', msg.id);
+  if (item !== undefined) {
+    item.meter = msg.meter;
+  } else {
+    ms.meters[msg.id] = msg.meter;
+  }
 };
 
 messageActions.msg = function(ms, msg) {

@@ -132,20 +132,14 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
   this.getProgress = function(id) {
     var progress = '';
-    for (var i = 0; i < that.items.length; ++i) {
-      var item = that.items[i];
-      if (item.id === id) {
-        var meter = that.meters[id];
-        if (meter !== undefined) {
-          var minsLeft = item.info.time * (100 - meter) / 100;
-          progress = v.sprintf(
-            '%d%% (~%s left)',
-            meter,
-            $rootScope.minutesToHoursMinutes(minsLeft)
-          );
-        }
-        break;
-      }
+    var item = $rootScope.findFirstWithProp(that.items, 'id', id);
+    if (item !== undefined && item.meter !== undefined) {
+      var minsLeft = item.info.time * (100 - item.meter) / 100;
+      progress = v.sprintf(
+        '%d%% (~%s left)',
+        item.meter,
+        $rootScope.minutesToHoursMinutes(minsLeft)
+      );
     }
     return progress;
   };
