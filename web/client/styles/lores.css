@@ -1,0 +1,6 @@
+/* It seems that angularCSS doesn't remove styles applied from the previous routes,
+   so we have to remove background image from the /login page manually */
+
+html {
+  background: none;
+}
