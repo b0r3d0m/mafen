@@ -43,11 +43,11 @@ messageActions.exp = function(ms, msg) {
 };
 
 messageActions.item = function(ms, msg) {
-    if (ms.meters[msg.id] !== undefined) {
-      msg.meter = ms.meters[msg.id];
-      delete ms.meters[msg.id];
-    }
-    ms.items.push(msg);
+  if (ms.meters[msg.id] !== undefined) {
+    msg.meter = ms.meters[msg.id];
+    delete ms.meters[msg.id];
+  }
+  ms.items.push(msg);
 };
 
 messageActions.gobrem = function(ms, msg) {
