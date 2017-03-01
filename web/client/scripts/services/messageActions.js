@@ -140,4 +140,8 @@ messageActions.time = function(ms, msg) {
   }
 };
 
+messageActions.lore = function(ms, msg) {
+  ms.lores[msg.resid] = msg.info;
+};
+
 module.exports = messageActions;
