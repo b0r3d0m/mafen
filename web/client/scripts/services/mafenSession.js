@@ -33,8 +33,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
     var msg = JSON.parse(message.data);
 
-    if(messageActions[msg.action] === undefined) {
-      console.error("action doesn't exist: " + msg.action);
+    if (messageActions[msg.action] === undefined) {
+      console.error("Unknown action received: " + msg.action);
       return;
     }
 
