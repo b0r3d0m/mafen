@@ -51,9 +51,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
 
   var onclose = function() {
     alertify.alert("Lost connection to the server. Maybe you login to the game client.",
-      function() {
-          $rootScope.logout();
-      });
+      $rootScope.logout);
   };
 
   this.waitForConnection = function(callback, interval) {
