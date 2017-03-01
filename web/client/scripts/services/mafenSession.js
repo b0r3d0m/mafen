@@ -53,17 +53,20 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     } else if (msg.action === 'mchat') {
       that.chats.push({
         id: msg.id,
-        name: msg.name
+        name: msg.name,
+        closable: false
       });
     } else if (msg.action === 'pchat') {
       that.chats.push({
         id: msg.id,
-        name: 'Party'
+        name: 'Party',
+        closable: false
       });
     } else if (msg.action === 'pmchat') {
       that.chats.push({
         id: msg.id,
-        name: msg.other
+        name: msg.other,
+        closable: true
       });
     } else if (msg.action === 'pchatrm') {
       that.chats = that.chats.filter(function(chat) {
