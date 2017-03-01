@@ -5,7 +5,7 @@ var v = require('voca');
 
 var messageActions = require('./messageActions');
 
-angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
+angular.module('app').service('mafenSession', function($rootScope, $timeout, $q, alertify) {
   'ngInject';
 
   var that = this;
@@ -49,6 +49,13 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     $rootScope.$apply();
   };
 
+  var onclose = function() {
+    alertify.alert("Lost connection to the server. Maybe you login to the game client.",
+      function() {
+          $rootScope.logout();
+      });
+  };
+
   this.waitForConnection = function(callback, interval) {
     if (that.ws.readyState === 1) { // OPEN
       callback();
@@ -62,6 +69,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   this.connect = function(addr) {
     that.ws = new WebSocket(addr);
     that.ws.onmessage = onmessage;
+    that.ws.onclose = onclose;
   };
 
   this.login = function(username, password) {
