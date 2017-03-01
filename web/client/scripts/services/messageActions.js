@@ -2,7 +2,7 @@
 
 var messageActions = {
   init: function($rootScope) {
-    this.findFirstWithProp = $rootScope.findFirstWithProp;
+    this.rootScope = $rootScope;
   }
 };
 
@@ -83,7 +83,7 @@ messageActions.mchat = function(ms, msg) {
 };
 
 messageActions.meter = function(ms, msg) {
-  var item = this.findFirstWithProp(ms.items, 'id', msg.id);
+  var item = this.rootScope.findFirstWithProp(ms.items, 'id', msg.id);
   if (item !== undefined) {
     item.meter = msg.meter;
   } else {
