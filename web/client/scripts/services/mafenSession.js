@@ -26,6 +26,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.lastrep = 0;
     that.kins = {};
     that.pmembers = [];
+    that.lores = {};
   };
 
   var onmessage = function(message) {
@@ -173,6 +174,11 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     };
   };
 
+  this.humanSecs = function(secs) {
+    var times = that.parseTotalSecs(secs);
+    return v.sprintf('Day %d, %02d:%02d', times.day, times.hours, times.mins);
+  };
+
   this.getServerTime = function() {
     if (that.tm === undefined || that.epoch === undefined) {
       return '';
@@ -192,8 +198,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.lastrep = now;
 
     var totalSecs = that.rgtime / 1000;
-    var times = that.parseTotalSecs(totalSecs);
-    return v.sprintf('Day %d, %02d:%02d', times.day, times.hours, times.mins);
+    return that.humanSecs(totalSecs);
   };
 
   this.isDewyLadysMantleTime = function() {
