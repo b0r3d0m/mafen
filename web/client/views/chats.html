@@ -26,6 +26,14 @@
     </uib-tabset>
   </div>
   <div class="col-sm-6">
+    <div class="panel panel-primary" ng-show="mafenSession.pmembers.length > 1">
+      <div class="panel-heading">Party members</div>
+      <div class="panel-body">
+        <ul class="list-group">
+          <li class="list-group-item" ng-repeat="pmemberId in mafenSession.pmembers">{{mafenSession.getPlayerName(pmemberId)}}</li>
+        </ul>
+      </div>
+    </div>
     <div class="panel panel-primary">
       <div class="panel-heading">Players in area</div>
       <div class="panel-body">
