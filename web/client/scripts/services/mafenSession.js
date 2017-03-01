@@ -1,13 +1,15 @@
 'use strict';
 
 var jsSHA256 = require('js-sha256/build/sha256.min.js');
-var messageActions = require('./messageActions');
 var v = require('voca');
+
+var messageActions = require('./messageActions');
 
 angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
   'ngInject';
 
   var that = this;
+  messageActions.init($rootScope);
 
   this.reset = function() {
     that.loginDeferred = $q.defer();
@@ -31,7 +33,11 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
     var msg = JSON.parse(message.data);
 
-    messageActions.init($rootScope);
+    if(messageActions[msg.action] === undefined) {
+      console.error("action doesn't exist: " + msg.action);
+      return;
+    }
+
     messageActions[msg.action](that, msg);
 
     var cb = that.callbacks[msg.action];
