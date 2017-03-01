@@ -203,6 +203,18 @@ class MessageBuf(object):
         self.pos += 8
         return res
 
+    def get_coords(self, be=False):
+        x = self.get_int32(be)
+        y = self.get_int32(be)
+        return Coord(x, y)
+
+    def get_color(self):
+        r = self.get_uint8()
+        g = self.get_uint8()
+        b = self.get_uint8()
+        a = self.get_uint8()
+        return Color(r, g, b, a)
+
     def get_list(self, be=False):
         res = []
         while True:
@@ -216,9 +228,7 @@ class MessageBuf(object):
             elif t == Type.T_STR:
                 res.append(self.get_string())
             elif t == Type.T_COORD:
-                x = self.get_int32(be)
-                y = self.get_int32(be)
-                res.append(Coord(x, y))
+                res.append(self.get_coords(be))
             elif t == Type.T_UINT8:
                 res.append(self.get_uint8())
             elif t == Type.T_UINT16:
@@ -228,11 +238,7 @@ class MessageBuf(object):
             elif t == Type.T_INT16:
                 res.append(self.get_int16(be))
             elif t == Type.T_COLOR:
-                r = self.get_uint8()
-                g = self.get_uint8()
-                b = self.get_uint8()
-                a = self.get_uint8()
-                res.append(Color(r, g, b, a))
+                res.append(self.get_color())
             elif t == Type.T_TTOL:
                 res.append(self.get_list(be))
             elif t == Type.T_NIL:
