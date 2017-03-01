@@ -40,6 +40,18 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafen
     chat.unread = false;
   };
 
+  $scope.closeChat = function(chatId) {
+    $scope.mafenSession.send({
+      action: 'closepmchat',
+      data: {
+        id: chatId
+      }
+    });
+    $scope.mafenSession.chats = $scope.mafenSession.chats.filter(function(chat) {
+      return chat.id !== chatId;
+    });
+  };
+
   $scope.inviteKin = function(kinId) {
     $scope.mafenSession.send({
       action: 'inv',

@@ -33,7 +33,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
 
     messageActions.init($rootScope);
     messageActions[msg.action](that, msg);
-    
+
     var cb = that.callbacks[msg.action];
     if (cb) {
       cb(msg);

@@ -4,6 +4,10 @@
       <uib-tab ng-repeat="chat in mafenSession.chats" select="onChatSelect(chat.id)">
         <uib-tab-heading>
           <i ng-if="chat.unread">(!)</i> {{chat.name}}
+          <div class="pull-right" ng-if="chat.closable">
+            <!-- NOTE: We have to prevent default click behavior because otherwise it'll route user to the '/' due to the known uib-tab issue -->
+            <button type="button" class="close" aria-label="Close" ng-click="closeChat(chat.id); $event.preventDefault();"><span aria-hidden="true">&times;</span></button>
+          </div>
         </uib-tab-heading>
         <div class="chat-container" scroll-glue>
           <div class="well well-sm" ng-repeat="msg in mafenSession.msgs[chat.id]">

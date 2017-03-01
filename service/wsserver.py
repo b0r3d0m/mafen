@@ -56,6 +56,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_inv_message(data)
         elif action == 'pmchat':
             self.handle_pmchat_message(data)
+        elif action == 'closepmchat':
+            self.handle_closepmchat_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -219,6 +221,19 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint16(self.buddy_wdg_id)
         msg.add_string('chat')
         msg.add_list([kin_id])
+        self.queue_rmsg(msg)
+
+    def handle_closepmchat_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        chat_id = data['id']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(chat_id)
+        msg.add_string('close')
         self.queue_rmsg(msg)
 
     def queue_rmsg(self, rmsg):
