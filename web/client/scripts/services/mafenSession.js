@@ -27,6 +27,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.kins = {};
     that.pmembers = [];
     that.lores = {};
+    that.pwaiting = false;
   };
 
   var onmessage = function(message) {

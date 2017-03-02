@@ -100,6 +100,7 @@ class WSServer(WebSocket, SimpleLogger):
             self.inv_wdg_id = -1
             self.study_wdg_id = -1
             self.buddy_wdg_id = -1
+            self.waiting_wdg_id = -1
             self.rseq = 0
             self.wseq = 0
             self.rmsgs = []
@@ -462,6 +463,10 @@ class WSServer(WebSocket, SimpleLogger):
                     'id': pgob
                 }))
             )
+        elif wdg_type == 'wnd':
+            if len(wdg_cargs) > 1:
+                if wdg_cargs[1] == "Invitation":
+                    self.waiting_wdg_id = wdg_id
         else:
             pass
 
@@ -615,7 +620,14 @@ class WSServer(WebSocket, SimpleLogger):
 
     def on_rmsg_dstwdg(self, msg):
         wdg_id = msg.get_uint16()
-        if wdg_id == self.pchat_wdg_id:
+        if wdg_id == self.waiting_wdg_id:
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'waitrm'
+                }))
+            )
+            self.waiting_wdg_id = -1
+        elif wdg_id == self.pchat_wdg_id:
             self.sendMessage(
                 unicode(json.dumps({
                     'action': 'pchatrm',
