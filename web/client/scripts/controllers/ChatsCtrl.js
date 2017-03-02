@@ -59,6 +59,7 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafen
         id: parseInt(kinId, 10)
       }
     });
+    $scope.mafenSession.pwaiting = true;
   };
 
   $scope.chatKin = function(kinId) {
