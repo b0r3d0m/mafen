@@ -27,6 +27,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.kins = {};
     that.pmembers = [];
     that.lores = {};
+    return that;
   };
 
   var onmessage = function(message) {
@@ -59,12 +60,18 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     }
   };
 
-  this.connect = function(addr, onclose) {
+  this.connect = function(addr) {
     that.ws = new WebSocket(addr);
     that.ws.onmessage = onmessage;
-    if(typeof(onclose) === "function")
-      that.ws.onclose = onclose;
+    return that;
   };
+
+  this.wsOnClose = function(onclose) {
+    if (that.ws !== undefined && typeof(onclose) === "function") {
+      that.ws.onclose = onclose;
+    }
+    return that;
+  }
 
   this.login = function(username, password) {
     that.send({
@@ -85,7 +92,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   };
 
   this.close = function() {
-    that.ws.close();
+    that.ws.close(4000); // code for CloseEvent object (4000–4999 available for use by applications)
   };
 
   this.getTotalMW = function() {
