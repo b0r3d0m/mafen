@@ -92,7 +92,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
   };
 
   this.close = function() {
-    that.ws.close(CODES.wsClose); // code for CloseEvent object (4000–4999 available for use by applications)
+    that.ws.close(CODES.wsClose);
   };
 
   this.getTotalMW = function() {
