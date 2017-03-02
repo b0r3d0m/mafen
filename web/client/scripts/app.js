@@ -21,6 +21,9 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   styles: '/styles/',
   assets: '/assets/'
 })
+.constant('CODES', {
+  wsClose: 4000
+})
 .config(function($routeProvider, $locationProvider, PATHS) {
   'ngInject';
 

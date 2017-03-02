@@ -5,7 +5,7 @@ var v = require('voca');
 
 var messageActions = require('./messageActions');
 
-angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
+angular.module('app').service('mafenSession', function($rootScope, $timeout, $q, CODES) {
   'ngInject';
 
   var that = this;
@@ -92,7 +92,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   };
 
   this.close = function() {
-    that.ws.close(4000); // code for CloseEvent object (4000–4999 available for use by applications)
+    that.ws.close(CODES.wsClose); // code for CloseEvent object (4000–4999 available for use by applications)
   };
 
   this.getTotalMW = function() {

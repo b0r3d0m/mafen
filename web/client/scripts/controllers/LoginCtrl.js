@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibModal, mafenSession, alertify, PATHS) {
+angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibModal, mafenSession, alertify, PATHS, CODES) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -8,7 +8,7 @@ angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibM
   $scope.user = {};
 
   var onclose = function(e) {
-    if (e.code !== 4000) {
+    if (e.code !== CODES.wsClose) {
       alertify.alert(
         "Lost connection to the server. Maybe you login to the game client.",
         $rootScope.logout);
