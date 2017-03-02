@@ -92,7 +92,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
   };
 
   this.close = function() {
-    that.ws.close(CODES.wsClose);
+    that.ws.close(CODES.wsClosedByUser);
   };
 
   this.getTotalMW = function() {

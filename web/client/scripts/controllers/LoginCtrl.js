@@ -8,7 +8,7 @@ angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibM
   $scope.user = {};
 
   var onclose = function(e) {
-    if (e.code !== CODES.wsClose) {
+    if (e.code !== CODES.wsClosedByUser) {
       alertify.alert(
         "Lost connection to the server. Maybe you login to the game client.",
         $rootScope.logout);
