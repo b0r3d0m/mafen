@@ -69,7 +69,7 @@
             </td>
             <td>{{kin.name}}</td>
             <td>
-              <button class="btn btn-success" ng-click="inviteKin(kin.$key)" ng-disabled="kin.online !== 1">
+              <button class="btn btn-success" ng-click="inviteKin(kin.$key)" ng-disabled="kin.online !== 1 || mafenSession.pwaiting">
                 Invite
               </button>
               <button class="btn btn-primary" ng-click="chatKin(kin.$key)" ng-disabled="kin.online !== 1">

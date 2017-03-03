@@ -1,11 +1,19 @@
 'use strict';
 
-angular.module('app').controller('LoginCtrl', function($scope, $uibModal, mafenSession, alertify, PATHS, $cookies) {
+angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibModal, mafenSession, alertify, PATHS, CODES, $cookies) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
 
   $scope.user = {};
+
+  var onclose = function(e) {
+    if (e.code !== CODES.wsClosedByUser) {
+      alertify.alert(
+        "Lost connection to the server. Maybe you logged in to the game client.",
+        $rootScope.logout);
+    }
+  };
 
   $scope.login = function() {
     var loginPromise = createLoginConnect($scope.user.username, $scope.user.password);
@@ -56,9 +64,13 @@ angular.module('app').controller('LoginCtrl', function($scope, $uibModal, mafenS
   };
 
   function createLoginConnect(username, password) {
-    $scope.mafenSession.reset();
-    $scope.mafenSession.connect('ws://mafen.club:8000');
+    $scope.mafenSession
+      .reset()
+      .connect('ws://mafen.club:8000')
+      .wsOnClose(onclose);
+
     $scope.loginPromise = $scope.mafenSession.login(username, password);
+
     return $scope.loginPromise;
   };
 

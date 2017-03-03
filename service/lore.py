@@ -24,6 +24,8 @@ class Lore(object):
                 elif layer.ltype == 'image':
                     img = layer.ldata[11:]  # Skip metadata
                     info['image'] = 'data:image/png;base64,' + base64.b64encode(img)
+                elif layer.ltype == 'pagina':
+                    info['desc'] = unicode(layer.ldata)
                 else:
                     pass
 
