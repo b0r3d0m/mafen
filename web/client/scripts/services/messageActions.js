@@ -144,4 +144,8 @@ messageActions.lore = function(ms, msg) {
   ms.lores[msg.resid] = msg.info;
 };
 
+messageActions.waitrm = function(ms, msg) {
+  ms.pwaiting = false;
+};
+
 module.exports = messageActions;
