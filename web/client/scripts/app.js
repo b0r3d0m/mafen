@@ -12,11 +12,10 @@ require('angular-route');
 require('angular-tablesort');
 require('angular-toarrayfilter/toArrayFilter.js');
 require('angular-ui-bootstrap/dist/ui-bootstrap-tpls.js');
-require('angular-cookies');
 require('alertify.js/dist/js/ngAlertify.js');
 require('ion-sound/js/ion.sound.min.js');
 
-var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives', 'angular-toArrayFilter', 'ngCookies'])
+var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBusy', 'tableSort', 'angularCSS', 'luegg.directives', 'angular-toArrayFilter'])
 .constant('PATHS', {
   views: '/views/',
   styles: '/styles/',
@@ -117,7 +116,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
     path: PATHS.assets + 'sounds/'
   });
 })
-.run(function($rootScope, $location, $interval, mafenSession, $cookies) {
+.run(function($rootScope, $location, $interval, mafenSession) {
   'ngInject';
 
   $rootScope.minutesToHoursMinutes = function(totalMins) {
@@ -139,7 +138,6 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   $rootScope.logout = function() {
     mafenSession.close();
     mafenSession.loggedIn = false;
-    $cookies.remove('user');
     $location.url('/login');
   };
 
