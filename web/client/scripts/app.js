@@ -21,6 +21,9 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   styles: '/styles/',
   assets: '/assets/'
 })
+.constant('CODES', {
+  wsClosedByUser: 4000  // code for CloseEvent object (4000–4999 available for use by applications)
+})
 .config(function($routeProvider, $locationProvider, PATHS) {
   'ngInject';
 

@@ -5,7 +5,7 @@ var v = require('voca');
 
 var messageActions = require('./messageActions');
 
-angular.module('app').service('mafenSession', function($rootScope, $timeout, $q) {
+angular.module('app').service('mafenSession', function($rootScope, $timeout, $q, CODES) {
   'ngInject';
 
   var that = this;
@@ -28,6 +28,8 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
     that.pmembers = [];
     that.lores = {};
     that.pwaiting = false;
+
+    return that;
   };
 
   var onmessage = function(message) {
@@ -63,6 +65,14 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   this.connect = function(addr) {
     that.ws = new WebSocket(addr);
     that.ws.onmessage = onmessage;
+    return that;
+  };
+
+  this.wsOnClose = function(onclose) {
+    if (that.ws !== undefined && typeof(onclose) === "function") {
+      that.ws.onclose = onclose;
+    }
+    return that;
   };
 
   this.login = function(username, password) {
@@ -84,7 +94,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q)
   };
 
   this.close = function() {
-    that.ws.close();
+    that.ws.close(CODES.wsClosedByUser);
   };
 
   this.getTotalMW = function() {
