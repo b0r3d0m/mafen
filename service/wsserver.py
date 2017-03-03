@@ -10,6 +10,7 @@ from config import Config
 from gameclient import GameClient, GameException, MessageType, RelMessageType, ObjDataType, PartyDataType, GameState
 from gob import Gob
 from item import Item
+from lore import Lore
 from messagebuf import MessageBuf
 from resource import ResLoader
 from simplelogger import SimpleLogger
@@ -56,6 +57,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_inv_message(data)
         elif action == 'pmchat':
             self.handle_pmchat_message(data)
+        elif action == 'closepmchat':
+            self.handle_closepmchat_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -97,6 +100,7 @@ class WSServer(WebSocket, SimpleLogger):
             self.inv_wdg_id = -1
             self.study_wdg_id = -1
             self.buddy_wdg_id = -1
+            self.waiting_wdg_id = -1
             self.rseq = 0
             self.wseq = 0
             self.rmsgs = []
@@ -109,6 +113,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.mchats = {}
             self.pchat_wdg_id = -1
             self.pmchats = {}
+            self.lores = []
+            self.lores_lock = threading.Lock()
 
             self.gc = GameClient(
                 WSServer.config.game_host,
@@ -221,6 +227,19 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_list([kin_id])
         self.queue_rmsg(msg)
 
+    def handle_closepmchat_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        chat_id = data['id']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(chat_id)
+        msg.add_string('close')
+        self.queue_rmsg(msg)
+
     def queue_rmsg(self, rmsg):
         msg = MessageBuf()
         msg.add_uint8(MessageType.MSG_REL)
@@ -287,6 +306,23 @@ class WSServer(WebSocket, SimpleLogger):
                                 }))
                             )
                             self.gobs[gob_id].sent = True
+
+                # TODO: Make copy
+                with self.lores_lock:
+                    for lore in self.lores:
+                        if lore.sent:
+                            continue
+                        info = lore.build()
+                        if info is None:
+                            continue
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'lore',
+                                'resid': lore.resid,
+                                'info': info
+                            }))
+                        )
+                        lore.sent = True
 
                 time.sleep(0.3)
             elif gs == GameState.CLOSE:
@@ -427,6 +463,10 @@ class WSServer(WebSocket, SimpleLogger):
                     'id': pgob
                 }))
             )
+        elif wdg_type == 'wnd':
+            if len(wdg_cargs) > 1:
+                if wdg_cargs[1] == "Invitation":
+                    self.waiting_wdg_id = wdg_id
         else:
             pass
 
@@ -559,12 +599,35 @@ class WSServer(WebSocket, SimpleLogger):
                     }))
                 )
                 self.buddies[buddy_id] = buddy_name
+        elif wdg_msg == 'exps':
+            rst = wdg_args[0]
+            lores = []
+            i = 1
+            while i < len(wdg_args):
+                resid = wdg_args[i]
+                i += 1
+                mtime = wdg_args[i]
+                i += 1
+                score = wdg_args[i]
+                i += 1
+                lore = Lore(resid, mtime, score)
+                lore.sent = False
+                lores.append(lore)
+            with self.lores_lock:
+                self.lores = lores
         else:
             pass
 
     def on_rmsg_dstwdg(self, msg):
         wdg_id = msg.get_uint16()
-        if wdg_id == self.pchat_wdg_id:
+        if wdg_id == self.waiting_wdg_id:
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'waitrm'
+                }))
+            )
+            self.waiting_wdg_id = -1
+        elif wdg_id == self.pchat_wdg_id:
             self.sendMessage(
                 unicode(json.dumps({
                     'action': 'pchatrm',

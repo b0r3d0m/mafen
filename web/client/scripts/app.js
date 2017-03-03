@@ -21,6 +21,9 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   styles: '/styles/',
   assets: '/assets/'
 })
+.constant('CODES', {
+  wsClosedByUser: 4000  // code for CloseEvent object (4000–4999 available for use by applications)
+})
 .config(function($routeProvider, $locationProvider, PATHS) {
   'ngInject';
 
@@ -71,6 +74,18 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
         PATHS.styles + 'attrs.css'
+      ],
+      resolve: {
+        loggedin: checkLoggedIn
+      }
+    })
+    .when('/lores', {
+      templateUrl: PATHS.views + 'lores.html',
+      controller: 'LoresCtrl',
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'lores.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -131,5 +146,6 @@ require('./controllers/AttrsCtrl.js');
 require('./controllers/CharListCtrl.js');
 require('./controllers/ChatsCtrl.js');
 require('./controllers/LoginCtrl.js');
+require('./controllers/LoresCtrl.js');
 require('./controllers/StudyCtrl.js');
 require('./services/mafenSession.js');
