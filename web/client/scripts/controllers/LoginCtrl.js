@@ -10,7 +10,7 @@ angular.module('app').controller('LoginCtrl', function($rootScope, $scope, $uibM
   var onclose = function(e) {
     if (e.code !== CODES.wsClosedByUser) {
       alertify.alert(
-        "Lost connection to the server. Maybe you login to the game client.",
+        "Lost connection to the server. Maybe you logged in to the game client.",
         $rootScope.logout);
     }
   };
