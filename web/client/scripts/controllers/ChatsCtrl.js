@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafenSession) {
+angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, $timeout, mafenSession) {
   'ngInject';
 
   $scope.mafenSession = mafenSession;
@@ -27,7 +27,7 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafen
       ion.sound.play('button_tiny');
     }
 
-    var activeChat = $scope.getChat($scope.activeChatId);
+    var activeChat = $scope.getChat($scope.mafenSession.activeChatId);
     if (activeChat.id !== msg.chat) {
       var chat = $scope.getChat(msg.chat);
       chat.unread = true;
@@ -35,9 +35,16 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, mafen
   });
 
   $scope.onChatSelect = function(chatId) {
-    $scope.activeChatId = chatId;
     var chat = $scope.getChat(chatId);
     chat.unread = false;
+
+    if ($scope.mafenSession.activeChatId === undefined) {
+      $scope.mafenSession.activeChatId = mafenSession.chats[0].id;
+    }
+
+    $timeout(function() {
+      $scope.mafenSession.activeChatId = chatId;
+    });
   };
 
   $scope.closeChat = function(chatId) {
