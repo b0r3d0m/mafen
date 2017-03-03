@@ -73,7 +73,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
       that.ws.onclose = onclose;
     }
     return that;
-  }
+  };
 
   this.login = function(username, password) {
     that.send({
