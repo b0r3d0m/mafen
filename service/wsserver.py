@@ -245,13 +245,29 @@ class WSServer(WebSocket, SimpleLogger):
         self.queue_rmsg(msg)
 
     def handle_clicknearest_message(self, data):
-        if self.get_gs() != GameState.PLAY or self.mapview_wdg_id == -1:
+        if self.get_gs() != GameState.PLAY:
             # TODO: Send response back to the client
+            return
+
+        if self.mapview_wdg_id == -1:
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': False,
+                    'reason': 'Map has not been constructed yet'
+                }))
+            )
             return
 
         obj_name = data['name']
         if obj_name != 'table':
-            # TODO: Send response back to the client
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': False,
+                    'reason': 'Unsupported object name'
+                }))
+            )
             return
 
         with self.gobs_lock:
@@ -264,8 +280,23 @@ class WSServer(WebSocket, SimpleLogger):
                     tables.append(gob)
                 elif gob_id == self.pgob_id:
                     pl = gob
-            if len(tables) == 0 or pl is None:
-                # TODO: Send response back to the client
+            if len(tables) == 0:
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'clicknearest',
+                        'success': False,
+                        'reason': 'No tables found (try again later)'
+                    }))
+                )
+                return
+            if pl is None:
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'clicknearest',
+                        'success': False,
+                        'reason': 'Player object has not been received yet'
+                    }))
+                )
                 return
 
             nearest = None
@@ -292,6 +323,13 @@ class WSServer(WebSocket, SimpleLogger):
                 -1  # click ID
             ])
             self.queue_rmsg(msg)
+
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': True
+                }))
+            )
 
     def queue_rmsg(self, rmsg):
         msg = MessageBuf()
