@@ -24,6 +24,26 @@ class Coord(object):
         self.x = x
         self.y = y
 
+    @staticmethod
+    def mul(lhs, rhs):
+        return Coord(lhs.x * rhs.x, lhs.y * rhs.y)
+
+    @staticmethod
+    def floor(lhs, rhs):
+        return Coord(int(lhs.x / rhs.x), int(lhs.y / rhs.y))  # TODO: math.floor?
+
+    @staticmethod
+    def diff(lhs, rhs):
+        return Coord(abs(lhs.x - rhs.x), abs(lhs.y - rhs.y))
+
+
+class Coords(object):
+    Z = Coord(0, 0)
+    POSRES = Coord.mul(
+        Coord(9.765625E-4, 9.765625E-4),
+        Coord(11, 11)
+    )
+
 
 class Color(object):
     def __init__(self, r, g, b, a):
@@ -90,7 +110,7 @@ class MessageBuf(object):
     def add_list(self, l, be=False):
         for e in l:
             t = type(e)
-            if e == 0:
+            if e is None:
                 self.add_uint8(0)
             elif t is int:
                 self.add_uint8(Type.T_INT)
