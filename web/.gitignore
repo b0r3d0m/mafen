@@ -42,3 +42,6 @@ bower_components
 
 # build
 build
+
+bundle.js
+bundle.js.map

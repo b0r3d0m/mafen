@@ -49,7 +49,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'study.css'
+        PATHS.styles + 'study.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -61,7 +62,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'chats.css'
+        PATHS.styles + 'chats.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -73,7 +75,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'attrs.css'
+        PATHS.styles + 'attrs.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -85,7 +88,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'lores.css'
+        PATHS.styles + 'lores.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -109,7 +113,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'login.css',
         PATHS.styles + 'ribbons.css',
-        PATHS.styles + 'hue.css'
+        PATHS.styles + 'hue.css',
+        PATHS.styles + 'common.css'
       ]
     })
     .otherwise({
