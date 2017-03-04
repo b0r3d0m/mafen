@@ -91,6 +91,18 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
         loggedin: checkLoggedIn
       }
     })
+    .when('/misc', {
+      templateUrl: PATHS.views + 'misc.html',
+      controller: 'MiscCtrl',
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'misc.css'
+      ],
+      resolve: {
+        loggedin: checkLoggedIn
+      }
+    })
     .when('/login', {
       templateUrl: PATHS.views + 'login.html',
       controller: 'LoginCtrl',
@@ -147,5 +159,6 @@ require('./controllers/CharListCtrl.js');
 require('./controllers/ChatsCtrl.js');
 require('./controllers/LoginCtrl.js');
 require('./controllers/LoresCtrl.js');
+require('./controllers/MiscCtrl.js');
 require('./controllers/StudyCtrl.js');
 require('./services/mafenSession.js');
