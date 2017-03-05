@@ -148,4 +148,8 @@ messageActions.waitrm = function(ms, msg) {
   ms.pwaiting = false;
 };
 
+messageActions.clicknearest = function(ms, msg) {
+  // NOP
+};
+
 module.exports = messageActions;
