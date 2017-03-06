@@ -11,7 +11,7 @@ from gameclient import GameClient, GameException, MessageType, RelMessageType, O
 from gob import Gob
 from item import Item
 from lore import Lore
-from messagebuf import MessageBuf
+from messagebuf import MessageBuf, Coord, Coords
 from resource import ResLoader
 from simplelogger import SimpleLogger
 
@@ -59,6 +59,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_pmchat_message(data)
         elif action == 'closepmchat':
             self.handle_closepmchat_message(data)
+        elif action == 'clicknearest':
+            self.handle_clicknearest_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -96,6 +98,7 @@ class WSServer(WebSocket, SimpleLogger):
 
             self.charlist_wdg_id = -1
             self.gameui_wdg_id = -1
+            self.mapview_wdg_id = -1
             self.chr_wdg_id = -1
             self.inv_wdg_id = -1
             self.study_wdg_id = -1
@@ -115,6 +118,7 @@ class WSServer(WebSocket, SimpleLogger):
             self.pmchats = {}
             self.lores = []
             self.lores_lock = threading.Lock()
+            self.pgob_id = -1
 
             self.gc = GameClient(
                 WSServer.config.game_host,
@@ -239,6 +243,93 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint16(chat_id)
         msg.add_string('close')
         self.queue_rmsg(msg)
+
+    def handle_clicknearest_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        if self.mapview_wdg_id == -1:
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': False,
+                    'reason': 'Map has not been constructed yet'
+                }))
+            )
+            return
+
+        obj_name = data['name']
+        if obj_name != 'table':
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': False,
+                    'reason': 'Unsupported object name'
+                }))
+            )
+            return
+
+        with self.gobs_lock:
+            tables = []
+            pl = None
+            for gob_id, gob in self.gobs.iteritems():
+                if gob.c is None:
+                    continue
+                if gob.is_table():
+                    tables.append(gob)
+                elif gob_id == self.pgob_id:
+                    pl = gob
+            if len(tables) == 0:
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'clicknearest',
+                        'success': False,
+                        'reason': 'No tables found (try again later)'
+                    }))
+                )
+                return
+            if pl is None:
+                self.sendMessage(
+                    unicode(json.dumps({
+                        'action': 'clicknearest',
+                        'success': False,
+                        'reason': 'Player object has not been received yet'
+                    }))
+                )
+                return
+
+            nearest = None
+            nearestc = None
+            for table in tables:
+                d = Coord.diff(pl.c, table.c)
+                if nearest is None or d.x + d.y < nearestc:
+                    nearest = table
+                    nearestc = d.x + d.y
+
+            msg = MessageBuf()
+            msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+            msg.add_uint16(self.mapview_wdg_id)
+            msg.add_string('click')
+            msg.add_list([
+                Coords.Z,  # pc (not used)
+                Coords.Z,  # mc (not used)
+                3,  # RMB
+                0,  # modflags (no Alt / Ctrl / etc)
+                0,  # no overlay
+                nearest.gob_id,
+                Coord.floor(nearest.c, Coords.POSRES),
+                0,  # overlay ID
+                -1  # click ID
+            ])
+            self.queue_rmsg(msg)
+
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'clicknearest',
+                    'success': True
+                }))
+            )
 
     def queue_rmsg(self, rmsg):
         msg = MessageBuf()
@@ -463,6 +554,9 @@ class WSServer(WebSocket, SimpleLogger):
                     'id': pgob
                 }))
             )
+            self.mapview_wdg_id = wdg_id  # TODO: Add synchronization
+            with self.gobs_lock:
+                self.pgob_id = pgob
         elif wdg_type == 'wnd':
             if len(wdg_cargs) > 1:
                 if wdg_cargs[1] == "Invitation":
@@ -739,15 +833,22 @@ class WSServer(WebSocket, SimpleLogger):
                         }))
                     )
                 elif data_type == ObjDataType.OD_MOVE:
-                    msg.get_int32()
-                    msg.get_int32()
+                    c = Coord.mul(msg.get_coords(), Coords.POSRES)
                     ia = msg.get_uint16()
+                    with self.gobs_lock:
+                        gob = self.gobs.get(id, Gob(id))
+                        gob.move(c)
+                        self.gobs[id] = gob
                 elif data_type == ObjDataType.OD_RES:
                     resid = msg.get_uint16()
                     if (resid & 0x8000) != 0:
                         resid &= ~0x8000
                         sdt_len = msg.get_uint8()
                         sdt = MessageBuf(msg.get_bytes(sdt_len))
+                    with self.gobs_lock:
+                        gob = self.gobs.get(id, Gob(id))
+                        gob.res(resid)
+                        self.gobs[id] = gob
                 elif data_type == ObjDataType.OD_LINBEG:
                     msg.get_int32()
                     msg.get_int32()

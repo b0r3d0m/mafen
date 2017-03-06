@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-sm-6">
-    <uib-tabset>
-      <uib-tab ng-repeat="chat in mafenSession.chats" select="onChatSelect(chat.id)">
+    <uib-tabset active="mafenSession.activeChatId">
+      <uib-tab ng-repeat="chat in mafenSession.chats" select="onChatSelect(chat.id)" index="chat.id">
         <uib-tab-heading>
           <i ng-if="chat.unread">(!)</i> {{chat.name}}
           <div class="pull-right" ng-if="chat.closable">
