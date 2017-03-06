@@ -1,5 +1,6 @@
 {
   "general": {
-    "port": 5000
+    "port": 5000,
+    "secret": "el.psy.congroo"
   }
 }
