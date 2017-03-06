@@ -151,7 +151,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
   $rootScope.logout = function() {
     mafenSession.close();
     mafenSession.loggedIn = false;
-    $cookies.remove('user');
+    $cookies.remove('token');
     $location.url('/login');
   };
 
@@ -169,3 +169,4 @@ require('./controllers/LoresCtrl.js');
 require('./controllers/MiscCtrl.js');
 require('./controllers/StudyCtrl.js');
 require('./services/mafenSession.js');
+require('./services/serverConnector.js');
