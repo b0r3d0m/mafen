@@ -1,4 +1,6 @@
 var path = require('path');
+var bodyParser = require('body-parser');
+var jwt = require('jsonwebtoken');
 
 // Read config
 var nconf = require('nconf');
@@ -19,10 +21,21 @@ app.use(express.static('client'));
 // Configure middlewares
 var favicon = require('serve-favicon');
 app.use(favicon('./client/assets/icons/favicon.ico'));
+app.use(bodyParser.json());
 
 // Define routes
 app.get('/', function(req, res) {
   res.render('index');
+});
+
+app.post('/auth', function (req, res) {
+  if (req.body.type === 'requestToken') {
+    var data = jwt.sign(req.body, nconf.get('general').secret);
+  } else {
+    var data = jwt.verify(req.body.token, nconf.get('general').secret);
+  }
+  
+  res.send(data);
 });
 
 // Start server
