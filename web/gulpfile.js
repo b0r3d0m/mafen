@@ -21,6 +21,7 @@ function bundleScript(watch) {
   b.transform('browserify-css', {
         global: true,
         processRelativeUrl: function(relativeUrl) {
+          // 'browserify-css' docs: https://github.com/cheton/browserify-css#2-how-do-i-load-font-and-image-files-from-node_modules
           var stripQueryStringAndHashFromPath = function(url) {
               return url.split('?')[0].split('#')[0];
           };
