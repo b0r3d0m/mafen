@@ -27,6 +27,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
     that.kins = {};
     that.pmembers = [];
     that.lores = {};
+    that.wounds = {};
     that.pwaiting = false;
     that.activeChatId = undefined;
 

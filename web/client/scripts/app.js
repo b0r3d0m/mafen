@@ -95,13 +95,27 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
         loggedin: checkLoggedIn
       }
     })
+    .when('/wounds', {
+      templateUrl: PATHS.views + 'wounds.html',
+      controller: 'WoundsCtrl',
+      css: [
+        PATHS.styles + 'header.css',
+        PATHS.styles + 'footer.css',
+        PATHS.styles + 'wounds.css',
+        PATHS.styles + 'common.css'
+      ],
+      resolve: {
+        loggedin: checkLoggedIn
+      }
+    })
     .when('/misc', {
       templateUrl: PATHS.views + 'misc.html',
       controller: 'MiscCtrl',
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'misc.css'
+        PATHS.styles + 'misc.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
@@ -162,8 +176,10 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 require('./controllers/AttrsCtrl.js');
 require('./controllers/CharListCtrl.js');
 require('./controllers/ChatsCtrl.js');
+require('./controllers/HealCtrl.js');
 require('./controllers/LoginCtrl.js');
 require('./controllers/LoresCtrl.js');
 require('./controllers/MiscCtrl.js');
 require('./controllers/StudyCtrl.js');
+require('./controllers/WoundsCtrl.js');
 require('./services/mafenSession.js');

@@ -14,6 +14,7 @@ from lore import Lore
 from messagebuf import MessageBuf, Coord, Coords
 from resource import ResLoader
 from simplelogger import SimpleLogger
+from wound import Wound
 
 
 class WSServer(WebSocket, SimpleLogger):
@@ -61,6 +62,12 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_closepmchat_message(data)
         elif action == 'clicknearest':
             self.handle_clicknearest_message(data)
+        elif action == 'wiact':
+            self.handle_wiact_message(data)
+        elif action == 'cl':
+            self.handle_cl_message(data)
+        elif action == 'drop':
+            self.handle_drop_message(data)
         else:
             self.error('Unknown message received: ' + action)
 
@@ -104,6 +111,7 @@ class WSServer(WebSocket, SimpleLogger):
             self.study_wdg_id = -1
             self.buddy_wdg_id = -1
             self.waiting_wdg_id = -1
+            self.flowermenu_wdg_id = -1
             self.rseq = 0
             self.wseq = 0
             self.rmsgs = []
@@ -118,6 +126,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.pmchats = {}
             self.lores = []
             self.lores_lock = threading.Lock()
+            self.wounds = {}
+            self.wounds_lock = threading.Lock()
             self.pgob_id = -1
 
             self.gc = GameClient(
@@ -331,6 +341,75 @@ class WSServer(WebSocket, SimpleLogger):
                 }))
             )
 
+    def handle_wiact_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        item_id = data['iid']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(item_id)
+        msg.add_string('take')
+        msg.add_list([
+            Coords.Z,
+            Coords.Z
+        ])
+        self.queue_rmsg(msg)
+
+        wound_id = int(data['wid'])
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.chr_wdg_id)
+        msg.add_string('wiact')
+        msg.add_list([
+            wound_id,
+            0  # modflags
+        ])
+        self.queue_rmsg(msg)
+
+    def handle_cl_message(self, data):
+        if self.get_gs() != GameState.PLAY or self.flowermenu_wdg_id == -1:
+            # TODO: Send response back to the client
+            return
+
+        option = data['option']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.flowermenu_wdg_id)
+        msg.add_string('cl')
+        if option == -1:
+            msg.add_list([
+                option
+            ])
+        else:
+            msg.add_list([
+                option,
+                0  # modflags
+            ])
+        self.queue_rmsg(msg)
+
+        self.flowermenu_wdg_id = -1  # TODO: Handle it on DSTWDG message or smth like that
+
+    def handle_drop_message(self, data):
+        if self.get_gs() != GameState.PLAY:
+            # TODO: Send response back to the client
+            return
+
+        coords = data['coords']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.inv_wdg_id)
+        msg.add_string('drop')
+        msg.add_list([
+            Coord(coords['x'], coords['y'])
+        ])
+        self.queue_rmsg(msg)
+
     def queue_rmsg(self, rmsg):
         msg = MessageBuf()
         msg.add_uint8(MessageType.MSG_REL)
@@ -379,6 +458,10 @@ class WSServer(WebSocket, SimpleLogger):
                                 'action': 'item',
                                 'id': item.wdg_id,
                                 'study': item.study,
+                                'coords': {
+                                    'x': item.coords.x,
+                                    'y': item.coords.y
+                                },
                                 'info': info
                             }))
                         )
@@ -414,6 +497,23 @@ class WSServer(WebSocket, SimpleLogger):
                             }))
                         )
                         lore.sent = True
+
+                # TODO: Make copy
+                with self.wounds_lock:
+                    for wid, wound in self.wounds.iteritems():
+                        if wound.sent:
+                            continue
+                        info = wound.build()
+                        if info is None:
+                            continue
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'woundadd',
+                                'wid': wid,
+                                'info': info
+                            }))
+                        )
+                        self.wounds[wid].sent = True
 
                 time.sleep(0.3)
             elif gs == GameState.CLOSE:
@@ -561,6 +661,14 @@ class WSServer(WebSocket, SimpleLogger):
             if len(wdg_cargs) > 1:
                 if wdg_cargs[1] == "Invitation":
                     self.waiting_wdg_id = wdg_id
+        elif wdg_type == 'sm':
+            self.sendMessage(
+                unicode(json.dumps({
+                    'action': 'flowermenu',
+                    'options': wdg_cargs
+                }))
+            )
+            self.flowermenu_wdg_id = wdg_id  # TODO: Add synchronization
         else:
             pass
 
@@ -709,6 +817,26 @@ class WSServer(WebSocket, SimpleLogger):
                 lores.append(lore)
             with self.lores_lock:
                 self.lores = lores
+        elif wdg_msg == 'wounds':
+            i = 0
+            while i < len(wdg_args):
+                wid = wdg_args[i]
+                resid = wdg_args[i + 1]
+                qdata = wdg_args[i + 2]
+                with self.wounds_lock:
+                    if resid == 0:
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'woundrm',
+                                'wid': wid
+                            }))
+                        )
+                        self.wounds.pop(resid, None)
+                    else:
+                        wound = Wound(wid, resid, qdata)
+                        wound.sent = False
+                        self.wounds[wid] = wound
+                i += 3
         else:
             pass
 
@@ -825,7 +953,7 @@ class WSServer(WebSocket, SimpleLogger):
                 data_type = msg.get_uint8()
                 if data_type == ObjDataType.OD_REM:
                     with self.gobs_lock:
-                        del self.gobs[id]
+                        self.gobs.pop(id, None)
                     self.sendMessage(
                         unicode(json.dumps({
                             'action': 'gobrem',
