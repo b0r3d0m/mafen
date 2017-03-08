@@ -14,6 +14,7 @@ from lore import Lore
 from messagebuf import MessageBuf, Coord, Coords
 from resource import ResLoader
 from simplelogger import SimpleLogger
+from wound import Wound
 
 
 class WSServer(WebSocket, SimpleLogger):
@@ -118,6 +119,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.pmchats = {}
             self.lores = []
             self.lores_lock = threading.Lock()
+            self.wounds = {}
+            self.wounds_lock = threading.Lock()
             self.pgob_id = -1
 
             self.gc = GameClient(
@@ -415,6 +418,23 @@ class WSServer(WebSocket, SimpleLogger):
                         )
                         lore.sent = True
 
+                # TODO: Make copy
+                with self.wounds_lock:
+                    for wid, wound in self.wounds.iteritems():
+                        if wound.sent:
+                            continue
+                        info = wound.build()
+                        if info is None:
+                            continue
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'woundadd',
+                                'wid': wid,
+                                'info': info
+                            }))
+                        )
+                        self.wounds[wid].sent = True
+
                 time.sleep(0.3)
             elif gs == GameState.CLOSE:
                 return
@@ -709,6 +729,26 @@ class WSServer(WebSocket, SimpleLogger):
                 lores.append(lore)
             with self.lores_lock:
                 self.lores = lores
+        elif wdg_msg == 'wounds':
+            i = 0
+            while i < len(wdg_args):
+                wid = wdg_args[i]
+                resid = wdg_args[i + 1]
+                qdata = wdg_args[i + 2]
+                with self.wounds_lock:
+                    if resid == 0:
+                        self.sendMessage(
+                            unicode(json.dumps({
+                                'action': 'woundrm',
+                                'wid': wid
+                            }))
+                        )
+                        self.wounds.pop(resid, None)
+                    else:
+                        wound = Wound(wid, resid, qdata)
+                        wound.sent = False
+                        self.wounds[wid] = wound
+                i += 3
         else:
             pass
 

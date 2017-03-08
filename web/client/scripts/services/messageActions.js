@@ -144,6 +144,14 @@ messageActions.lore = function(ms, msg) {
   ms.lores[msg.resid] = msg.info;
 };
 
+messageActions.woundadd = function(ms, msg) {
+  ms.wounds[msg.wid] = msg.info;
+};
+
+messageActions.woundrm = function(ms, msg) {
+  delete ms.wounds[msg.wid];
+};
+
 messageActions.waitrm = function(ms, msg) {
   ms.pwaiting = false;
 };
