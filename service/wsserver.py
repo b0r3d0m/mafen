@@ -953,7 +953,7 @@ class WSServer(WebSocket, SimpleLogger):
                 data_type = msg.get_uint8()
                 if data_type == ObjDataType.OD_REM:
                     with self.gobs_lock:
-                        del self.gobs[id]
+                        self.gobs.pop(id, None)
                     self.sendMessage(
                         unicode(json.dumps({
                             'action': 'gobrem',
