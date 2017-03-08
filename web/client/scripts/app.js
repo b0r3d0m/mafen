@@ -114,7 +114,8 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
       css: [
         PATHS.styles + 'header.css',
         PATHS.styles + 'footer.css',
-        PATHS.styles + 'misc.css'
+        PATHS.styles + 'misc.css',
+        PATHS.styles + 'common.css'
       ],
       resolve: {
         loggedin: checkLoggedIn
