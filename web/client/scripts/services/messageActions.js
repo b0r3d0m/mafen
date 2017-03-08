@@ -152,6 +152,10 @@ messageActions.woundrm = function(ms, msg) {
   delete ms.wounds[msg.wid];
 };
 
+messageActions.flowermenu = function(ms, msg) {
+  // NOP
+};
+
 messageActions.waitrm = function(ms, msg) {
   ms.pwaiting = false;
 };

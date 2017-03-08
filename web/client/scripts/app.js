@@ -175,6 +175,7 @@ var app = angular.module('app', ['ngAlertify', 'ngRoute', 'ui.bootstrap', 'cgBus
 require('./controllers/AttrsCtrl.js');
 require('./controllers/CharListCtrl.js');
 require('./controllers/ChatsCtrl.js');
+require('./controllers/HealCtrl.js');
 require('./controllers/LoginCtrl.js');
 require('./controllers/LoresCtrl.js');
 require('./controllers/MiscCtrl.js');

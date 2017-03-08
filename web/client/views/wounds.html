@@ -16,7 +16,10 @@
             <td><img ng-src="{{wound.image}}"></td>
             <td>{{wound.tooltip}}</td>
             <td>{{wound.hhp}}</td>
-            <td><button class="btn btn-default" uib-popover="{{wound.desc}}" popover-placement="auto top">Show description</button></td>
+            <td>
+              <button class="btn btn-default" uib-popover="{{wound.desc}}" popover-placement="auto top">Show description</button>
+              <button class="btn btn-success" ng-click="healWound(wound.$key)">Heal</button>
+            </td>
           </tr>
         </tbody>
       </table>
