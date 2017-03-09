@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">Current equip</div>
+      <table class="table table-striped table-bordered" border="1" ts-wrapper>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th ts-criteria="info.tooltip">Tooltip</th>
+            <th ts-criteria="info.q">Quality</th>
+            <th></th>
+          <tr>
+        </thead>
+        <tbody>
+          <tr ng-if="item.place === 'equip'" ng-repeat="item in mafenSession.items" ts-repeat>
+            <td><img ng-src="{{item.info.image}}"></td>
+            <td>{{item.info.tooltip}}</td>
+            <td>{{item.info.q | number: 2}}</td>
+            <td>
+              <button class="btn btn-danger" ng-click="transferItem(item.id)">
+                Unequip
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-12">
+    <div class="panel panel-primary">
+      <div class="panel-heading">Available items</div>
+      <table class="table table-striped table-bordered" border="1" ts-wrapper>
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th ts-criteria="info.tooltip">Tooltip</th>
+            <th ts-criteria="info.q">Quality</th>
+            <th></th>
+          <tr>
+        </thead>
+        <tbody>
+          <tr ng-if="!item.info.curio && item.place !== 'equip'" ng-repeat="item in mafenSession.items" ts-repeat>
+            <td><img ng-src="{{item.info.image}}"></td>
+            <td>{{item.info.tooltip}}</td>
+            <td>{{item.info.q | number: 2}}</td>
+            <td>
+              <button class="btn btn-primary" ng-click="transferItem(item.id)">
+                Equip
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
