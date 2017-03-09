@@ -107,6 +107,7 @@ class WSServer(WebSocket, SimpleLogger):
             self.gameui_wdg_id = -1
             self.mapview_wdg_id = -1
             self.chr_wdg_id = -1
+            self.epry_wdg_id = -1
             self.inv_wdg_id = -1
             self.study_wdg_id = -1
             self.buddy_wdg_id = -1
@@ -182,20 +183,11 @@ class WSServer(WebSocket, SimpleLogger):
 
         item_id = data['id']
 
-        coords = None
-        with self.items_lock:
-            for item in self.items:
-                if item.wdg_id == item_id:
-                    coords = copy.copy(item.coords)
-        if coords is None:
-            # TODO: Send response back to the client
-            return
-
         msg = MessageBuf()
         msg.add_uint8(RelMessageType.RMSG_WDGMSG)
         msg.add_uint16(item_id)
         msg.add_string('transfer')
-        msg.add_list([coords])
+        msg.add_list([Coords.Z])  # Ignored
         self.queue_rmsg(msg)
 
     def handle_msg_message(self, data):
@@ -457,8 +449,8 @@ class WSServer(WebSocket, SimpleLogger):
                             unicode(json.dumps({
                                 'action': 'item',
                                 'id': item.wdg_id,
-                                'study': item.study,
-                                'coords': {
+                                'place': item.place,
+                                'coords': None if item.place == 'equip' else {
                                     'x': item.coords.x,
                                     'y': item.coords.y
                                 },
@@ -601,17 +593,21 @@ class WSServer(WebSocket, SimpleLogger):
                 pass
         elif wdg_type == 'chr':
             self.chr_wdg_id = wdg_id
+        elif wdg_type == 'epry':
+            self.epry_wdg_id = wdg_id
         elif wdg_type == 'item':
             if wdg_parent == self.inv_wdg_id:
                 wdg = 'inv'
             elif wdg_parent == self.study_wdg_id:
                 wdg = 'study'
+            elif wdg_parent == self.epry_wdg_id:
+                wdg = 'equip'
             else:
                 return
             coords = wdg_pargs[0]
             resid = wdg_cargs[0]
             with self.items_lock:
-                item = Item(wdg_id, coords, resid, study=(wdg == 'study'))
+                item = Item(wdg_id, coords, resid, place=wdg)
                 item.sent = False
                 self.items.append(item)
         elif wdg_type == 'buddy':
