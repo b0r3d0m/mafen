@@ -95,3 +95,8 @@ ENV/
 
 # PyCharm stuff
 .idea
+
+# Project bins
+ui
+paginae
+gfx

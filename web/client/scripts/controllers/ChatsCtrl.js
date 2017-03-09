@@ -67,6 +67,18 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, $time
       }
     });
     $scope.mafenSession.pwaiting = true;
+    $scope.mafenSession.invitedKinId = kinId;
+  };
+
+  $scope.cancelInviting = function(kinId) {
+    $scope.mafenSession.send({
+      action: 'uninv',
+      data: {
+        id: parseInt($scope.mafenSession.invitedKinId, 10)
+      }
+    });
+    $scope.mafenSession.pwaiting = false;
+    $scope.mafenSession.invitedKinId = undefined;
   };
 
   $scope.chatKin = function(kinId) {

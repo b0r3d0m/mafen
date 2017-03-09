@@ -30,6 +30,7 @@ angular.module('app').service('mafenSession', function($rootScope, $timeout, $q,
     that.wounds = {};
     that.pwaiting = false;
     that.activeChatId = undefined;
+    that.invitedKinId = undefined;
 
     return that;
   };
