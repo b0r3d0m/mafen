@@ -56,6 +56,8 @@ class WSServer(WebSocket, SimpleLogger):
             self.handle_msg_message(data)
         elif action == 'inv':
             self.handle_inv_message(data)
+        elif action == 'uninv':
+            self.handle_uninv_message(data)
         elif action == 'pmchat':
             self.handle_pmchat_message(data)
         elif action == 'closepmchat':
@@ -224,6 +226,20 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint8(RelMessageType.RMSG_WDGMSG)
         msg.add_uint16(self.buddy_wdg_id)
         msg.add_string('inv')
+        msg.add_list([kin_id])
+        self.queue_rmsg(msg)
+
+    def handle_uninv_message(self, data):
+        if self.get_gs() != GameState.PLAY or self.buddy_wdg_id == -1:
+            # TODO: Send response back to the client
+            return
+
+        kin_id = data['id']
+
+        msg = MessageBuf()
+        msg.add_uint8(RelMessageType.RMSG_WDGMSG)
+        msg.add_uint16(self.buddy_wdg_id)
+        msg.add_string('rminv')
         msg.add_list([kin_id])
         self.queue_rmsg(msg)
 

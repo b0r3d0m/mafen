@@ -158,6 +158,7 @@ messageActions.flowermenu = function(ms, msg) {
 
 messageActions.waitrm = function(ms, msg) {
   ms.pwaiting = false;
+  ms.invitedKinId = undefined;
 };
 
 messageActions.clicknearest = function(ms, msg) {
