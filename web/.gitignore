@@ -30,6 +30,7 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
+client/vendor
 
 # Optional npm cache directory
 .npm
@@ -42,3 +43,6 @@ bower_components
 
 # build
 build
+
+# bundle
+client/bundle.*

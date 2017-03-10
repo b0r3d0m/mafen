@@ -5,11 +5,11 @@ from resource import ResLoader
 
 
 class Item(object):
-    def __init__(self, wdg_id, coords, resid, study):
+    def __init__(self, wdg_id, coords, resid, place):
         self.wdg_id = wdg_id
         self.coords = coords
         self.resid = resid
-        self.study = study
+        self.place = place
         self.info = None
 
     def add_info(self, info):
