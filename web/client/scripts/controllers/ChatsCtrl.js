@@ -73,9 +73,7 @@ angular.module('app').controller('ChatsCtrl', function($rootScope, $scope, $time
   $scope.cancelInviting = function(kinId) {
     $scope.mafenSession.send({
       action: 'uninv',
-      data: {
-        id: parseInt($scope.mafenSession.invitedKinId, 10)
-      }
+      data: ''
     });
     $scope.mafenSession.pwaiting = false;
     $scope.mafenSession.invitedKinId = undefined;
