@@ -71,11 +71,11 @@
             <td>{{kin.name}}</td>
             <td>
               <button class="btn btn-success" ng-click="inviteKin(kin.$key)"
-                  ng-hide="kin.$key === mafenSession.invitedKinId"
+                  ng-if="kin.$key !== mafenSession.invitedKinId"
                   ng-disabled="kin.online !== 1 || mafenSession.pwaiting">
                 Invite
               </button>
-              <button class="btn btn-danger" ng-click="cancelInviting()" ng-if="kin.$key === mafenSession.invitedKinId">
+              <button class="btn btn-danger" ng-click="cancelInvitation()" ng-if="kin.$key === mafenSession.invitedKinId">
                 Cancel
               </button>
               <button class="btn btn-primary" ng-click="chatKin(kin.$key)" ng-disabled="kin.online !== 1">
