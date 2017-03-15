@@ -231,6 +231,7 @@ class WSServer(WebSocket, SimpleLogger):
         msg.add_uint16(self.waiting_wdg_id)
         msg.add_string('close')
         self.queue_rmsg(msg)
+        self.waiting_wdg_id = -1
 
     def handle_pmchat_message(self, data):
         if self.get_gs() != GameState.PLAY or self.buddy_wdg_id == -1:
